@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1118</width>
+    <width>1017</width>
     <height>676</height>
    </rect>
   </property>
@@ -507,13 +507,6 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="daysToSimulateLabel">
-        <property name="text">
-         <string>Days to simulate</string>
-        </property>
-       </widget>
-      </item>
       <item row="8" column="1">
        <widget class="QSpinBox" name="daysToSimulateSpinbox">
         <property name="sizePolicy">
@@ -542,6 +535,13 @@
         </property>
        </widget>
       </item>
+      <item row="8" column="0">
+       <widget class="QLabel" name="daysToSimulateLabel">
+        <property name="text">
+         <string>Days to simulate</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -553,17 +553,34 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <layout class="QFormLayout" name="formLayout">
-      <property name="formAlignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-      </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
       <property name="topMargin">
        <number>2</number>
       </property>
       <property name="bottomMargin">
        <number>2</number>
       </property>
-      <item row="0" column="0">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Title</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="simulationTitleTextfield">
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Simulation 1</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="simulateButton">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -576,8 +593,24 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
+      <item>
+       <spacer name="horizontalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QPushButton" name="clearLastSimulationButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
           <horstretch>0</horstretch>
