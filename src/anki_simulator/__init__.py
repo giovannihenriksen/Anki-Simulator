@@ -6,7 +6,9 @@ from aqt.qt import *
 from aqt.utils import showInfo
 from datetime import date
 
-from . import anki_simulator_dialog
+from .gui.forms.anki21 import anki_simulator_dialog
+from .gui import graph
+
 from . import simulator
 
 
@@ -31,6 +33,7 @@ class SimulatorDialog(QDialog):
         self.mw = mw
         self.dialog = anki_simulator_dialog.Ui_simulator_dialog()
         self.dialog.setupUi(self)
+        self.setupGraph()
         self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.dialog.deckChooser)
         self.dialog.simulateButton.clicked.connect(self.simulate)
         self.dialog.loadDeckConfigurationsButton.clicked.connect(self.loadDeckConfigurations)
@@ -38,6 +41,13 @@ class SimulatorDialog(QDialog):
         self.loadDeckConfigurations()
         self.warnedAboutOverdueCards = False
         self.numberOfSimulations = 0
+
+    def setupGraph(self):
+        simulationGraph = graph.Graph()
+        simulationGraph.setMinimumSize(QSize(0, 227))
+        simulationGraph.setObjectName("simulationGraph")
+        self.dialog.simulationGraph = simulationGraph
+        self.dialog.verticalLayout.addWidget(self.dialog.simulationGraph)
 
     def loadDeckConfigurations(self):
         deckID = self.deckChooser.selectedId()
