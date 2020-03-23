@@ -38,14 +38,21 @@ class Simulator:
             return False  # card incorrect
         return True  # card correct
 
-    def simulate(self):
+    def simulate(self, controller=None):
         dayIndex = 0
         while dayIndex < len(self.dateArray):
+
+            if controller:
+                controller.tick.emit(dayIndex)
+            
             reviewNumber = 0
             idsDoneToday = []
             removeList = []  # some cards may be postponed to the next day. We need to remove them from the
             # current day.
             while reviewNumber < len(self.dateArray[dayIndex]):
+                if controller and controller.do_cancel:
+                    return None
+                
                 originalReview = self.dateArray[dayIndex][reviewNumber].copy()
                 originalId = originalReview['id']
                 originalEase = originalReview['ease']
