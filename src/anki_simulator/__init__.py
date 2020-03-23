@@ -1,15 +1,15 @@
 from datetime import date
 
-from PyQt5.QtCore import QEventLoop, QSize, QThread, Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QAction, QApplication, QDialog, QProgressDialog
 
 # import the main window object (mw) from aqt
 import aqt
-from aqt.utils import showInfo, tooltip
+from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip
 
-from .simulator import Simulator
 from .gui import graph
 from .gui.forms.anki21 import anki_simulator_dialog
+from .simulator import Simulator
 
 
 def listToUser(l):
@@ -46,8 +46,18 @@ class SimulatorDialog(QDialog):
         self.warnedAboutOverdueCards = False
         self.numberOfSimulations = 0
         
+        restoreGeom(self, "simulatorDialog")
+        
         self._thread = None
         self._progress = None
+
+    def reject(self):
+        saveGeom(self, "simulatorDialog")
+        super().reject()
+
+    def accept(self):
+        saveGeom(self, "simulatorDialog")
+        super().accept()
 
     def setupGraph(self):
         simulationGraph = graph.Graph(parent=self)
