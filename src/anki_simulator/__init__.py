@@ -247,8 +247,10 @@ class SimulatorDialog(QDialog):
     def _on_simulation_done(self, data):
         self.numberOfSimulations += 1
         deck = self.mw.col.decks.get(self.deckChooser.selectedId())
-        deckName = "Simulation {} ({})".format(self.numberOfSimulations, deck['name'])
-        self.dialog.simulationGraph.addDataSet(deckName, data)
+        simulationTitle = "{} ({})".format(self.dialog.simulationTitleTextfield.text(), deck['name'])
+        self.dialog.simulationGraph.addDataSet(simulationTitle, data)
+        self.dialog.simulationTitleTextfield.setText("Simulation {}".format(self.numberOfSimulations+1))
+        self.dialog.clearLastSimulationButton.setEnabled(True)
 
     def _on_simulation_canceled(self):
         if self._progress:
@@ -259,6 +261,11 @@ class SimulatorDialog(QDialog):
 
     def clear_last_simulation(self):
         self.dialog.simulationGraph.clearLastDataset()
+        self.numberOfSimulations -= 1
+        if self.numberOfSimulations == 0:
+            self.dialog.clearLastSimulationButton.setEnabled(False)
+        if not self.dialog.simulationTitleTextfield.isModified():
+            self.dialog.simulationTitleTextfield.setText("Simulation {}".format(self.numberOfSimulations + 1))
 
 class SimulatorThread(QThread):
     
