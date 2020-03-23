@@ -48,8 +48,6 @@ class SimulatorDialog(QDialog):
         
         self._thread = None
         self._progress = None
-        
-        self.setWindowModality(Qt.WindowModal)
 
     def setupGraph(self):
         simulationGraph = graph.Graph(parent=self)
@@ -248,7 +246,7 @@ class SimulatorDialog(QDialog):
         self._progress = progress
        
         self._thread.start()
-        self._progress.show()
+        self._progress.exec_()
         
     def _on_simulation_done(self, data):
         self.numberOfSimulations += 1
