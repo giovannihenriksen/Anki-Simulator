@@ -1,6 +1,6 @@
 from datetime import date
 
-from PyQt5.QtCore import QEventLoop, QObject, QSize, QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QEventLoop, QSize, QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QAction, QApplication, QDialog, QProgressDialog
 
 # import the main window object (mw) from aqt
@@ -28,13 +28,17 @@ def stepsAreValid(steps):
 
 class SimulatorDialog(QDialog):
 
-    def __init__(self, mw):
+    def __init__(self, mw, deck_id=None):
         QDialog.__init__(self, parent=mw)
         self.mw = mw
         self.dialog = anki_simulator_dialog.Ui_simulator_dialog()
         self.dialog.setupUi(self)
         self.setupGraph()
         self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.dialog.deckChooser)
+        if deck_id is not None:
+            deck_name = self.mw.col.decks.nameOrNone(deck_id)
+            if deck_name:
+                self.deckChooser.setDeckName(deck_name)
         self.dialog.simulateButton.clicked.connect(self.simulate)
         self.dialog.loadDeckConfigurationsButton.clicked.connect(self.loadDeckConfigurations)
         self.dialog.clearLastSimulationButton.clicked.connect(self.clear_last_simulation)
@@ -44,9 +48,11 @@ class SimulatorDialog(QDialog):
         
         self._thread = None
         self._progress = None
+        
+        self.setWindowModality(Qt.WindowModal)
 
     def setupGraph(self):
-        simulationGraph = graph.Graph()
+        simulationGraph = graph.Graph(parent=self)
         simulationGraph.setMinimumSize(QSize(0, 227))
         simulationGraph.setObjectName("simulationGraph")
         self.dialog.simulationGraph = simulationGraph
@@ -288,7 +294,6 @@ class SimulatorThread(QThread):
     def cancel(self):
         self.do_cancel = True
 
-
 class SimulatorProgressDialog(QProgressDialog):
     def __init__(self, minimum=0, maximum=100, *args, **kwargs):
         super().__init__(minimum=minimum, maximum=maximum, *args, **kwargs)
@@ -303,11 +308,26 @@ class SimulatorProgressDialog(QProgressDialog):
     def finish(self):
         self.setValue(self.maximum())
 
-def open_simulator_dialog():
-    dialog = SimulatorDialog(aqt.mw)
-    dialog.exec_()
 
+def open_simulator_dialog(deck_id=None):
+    dialog = SimulatorDialog(aqt.mw, deck_id=deck_id)
+    dialog.show()
+
+def on_deck_browser_will_show_options_menu(menu, deck_id):
+    action = menu.addAction("Simulate")
+    action.triggered.connect(lambda _, did=deck_id: open_simulator_dialog(did))
+
+# Main menu
 
 action = QAction('Anki Simulator', aqt.mw)
 action.triggered.connect(open_simulator_dialog)
 aqt.mw.form.menuTools.addAction(action)
+
+# Deck options context menu
+
+try:  # Anki 2.1.20+
+    from aqt.gui_hooks import deck_browser_will_show_options_menu
+    deck_browser_will_show_options_menu.append(on_deck_browser_will_show_options_menu)
+except (ImportError, ModuleNotFoundError):
+    from anki.hooks import addHook
+    addHook("showDeckOptions", on_deck_browser_will_show_options_menu)
