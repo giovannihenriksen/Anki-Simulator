@@ -1,0 +1,15 @@
+{
+    "display_name": "Anki Simulator",
+    "module_name": "anki_simulator",
+    "repo_name": "Anki-Simulator",
+    "ankiweb_id": "",
+    "author": "giovannihenriksen",
+    "contact": "https://github.com/giovannihenriksen",
+    "homepage": "https://github.com/giovannihenriksen/Anki-Simulator",
+    "copyright_start": 2020,
+    "tags": "simulator",
+    "conflicts": [],
+    "targets": [
+        "anki21"
+    ]
+}
