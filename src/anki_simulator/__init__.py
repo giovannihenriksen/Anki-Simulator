@@ -1,15 +1,15 @@
-# import the main window object (mw) from aqt
-import aqt
-import os
-from PyQt5.QtWidgets import QDialog
-from aqt.qt import *
-from aqt.utils import showInfo
 from datetime import date
 
-from .gui.forms.anki21 import anki_simulator_dialog
-from .gui import graph
+from PyQt5.QtCore import QEventLoop, QObject, QSize, QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import QAction, QApplication, QDialog, QProgressDialog
 
-from . import simulator
+# import the main window object (mw) from aqt
+import aqt
+from aqt.utils import showInfo, tooltip
+
+from .simulator import Simulator
+from .gui import graph
+from .gui.forms.anki21 import anki_simulator_dialog
 
 
 def listToUser(l):
@@ -29,7 +29,7 @@ def stepsAreValid(steps):
 class SimulatorDialog(QDialog):
 
     def __init__(self, mw):
-        QDialog.__init__(self)
+        QDialog.__init__(self, parent=mw)
         self.mw = mw
         self.dialog = anki_simulator_dialog.Ui_simulator_dialog()
         self.dialog.setupUi(self)
@@ -41,6 +41,9 @@ class SimulatorDialog(QDialog):
         self.loadDeckConfigurations()
         self.warnedAboutOverdueCards = False
         self.numberOfSimulations = 0
+        
+        self._thread = None
+        self._progress = None
 
     def setupGraph(self):
         simulationGraph = graph.Graph()
@@ -214,26 +217,47 @@ class SimulatorDialog(QDialog):
         chanceRightYoung = float(self.dialog.percentCorrectYoungSpinbox.value()) / 100
         chanceRightMature = float(self.dialog.percentCorrectMatureSpinbox.value()) / 100
         includeOverdueCards = self.dialog.includeOverdueCardsCheckbox.isChecked()
-        self.mw.progress.start(label='Simulating...')
         dateArray = self.loadCards(self.deckChooser.selectedId(), daysToSimulate,
                                    int(self.dialog.newCardsPerDaySpinbox.value()),
                                    startingEase, len(learningSteps), len(lapseSteps), includeOverdueCards)  # returns an array of days,
         # each day is another array that contains all the cards for that day
 
-        sim = simulator.Simulator(dateArray, daysToSimulate, newCardsPerDay, intervalModifier, maxReviewsPerDay,
-                                  learningSteps, lapseSteps, graduatingInterval, newLapseInterval, maxInterval,
-                                  chanceRightUnseen, percentagesCorrectForLearningSteps,
-                                  percentagesCorrectForLapseSteps, chanceRightYoung, chanceRightMature)
-        data = sim.simulate()
+
+        sim = Simulator(dateArray, daysToSimulate, newCardsPerDay, intervalModifier, maxReviewsPerDay,
+                        learningSteps, lapseSteps, graduatingInterval, newLapseInterval, maxInterval,
+                        chanceRightUnseen, percentagesCorrectForLearningSteps,
+                        percentagesCorrectForLapseSteps, chanceRightYoung, chanceRightMature)
+        
+        thread = SimulatorThread(sim, parent=self)
+        progress = SimulatorProgressDialog(maximum=len(dateArray), parent=self)
+        
+        thread.done.connect(progress.finish)
+        thread.done.connect(self._on_simulation_done)
+        thread.canceled.connect(self._on_simulation_canceled)
+        
+        thread.tick.connect(progress.update)
+        progress.canceled.connect(thread.cancel)
+       
+        self._thread = thread
+        self._progress = progress
+       
+        self._thread.start()
+        self._progress.show()
+        
+    def _on_simulation_done(self, data):
         self.numberOfSimulations += 1
         deck = self.mw.col.decks.get(self.deckChooser.selectedId())
-
         simulationTitle = "{} ({})".format(self.dialog.simulationTitleTextfield.text(), deck['name'])
         self.dialog.simulationGraph.addDataSet(simulationTitle, data)
         self.dialog.simulationTitleTextfield.setText("Simulation {}".format(self.numberOfSimulations+1))
         self.dialog.clearLastSimulationButton.setEnabled(True)
-        self.mw.progress.finish()
 
+    def _on_simulation_canceled(self):
+        if self._progress:
+            # seems to be necessary to prevent progress dialog from being stuck:
+            QApplication.instance().processEvents(QEventLoop.ExcludeUserInputEvents)
+            self._progress.cancel()
+        tooltip("Canceled", parent=self)
 
     def clear_last_simulation(self):
         self.dialog.simulationGraph.clearLastDataset()
@@ -243,6 +267,41 @@ class SimulatorDialog(QDialog):
         if not self.dialog.simulationTitleTextfield.isModified():
             self.dialog.simulationTitleTextfield.setText("Simulation {}".format(self.numberOfSimulations + 1))
 
+class SimulatorThread(QThread):
+    
+    done = pyqtSignal(object)
+    canceled = pyqtSignal()
+    tick = pyqtSignal(int)
+    
+    def __init__(self, simulator, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._simulator = simulator
+        self.do_cancel = False
+    
+    def run(self):
+        data = self._simulator.simulate(self)
+        if data is None:
+            self.canceled.emit()
+            return
+        self.done.emit(data)
+
+    def cancel(self):
+        self.do_cancel = True
+
+
+class SimulatorProgressDialog(QProgressDialog):
+    def __init__(self, minimum=0, maximum=100, *args, **kwargs):
+        super().__init__(minimum=minimum, maximum=maximum, *args, **kwargs)
+        self.setLabelText("Simulating reviews...")
+        self.setCancelButtonText("Cancel simulation")
+
+    @pyqtSlot(int)
+    def update(self, value):
+        self.setValue(value)
+
+    @pyqtSlot()
+    def finish(self):
+        self.setValue(self.maximum())
 
 def open_simulator_dialog():
     dialog = SimulatorDialog(aqt.mw)
