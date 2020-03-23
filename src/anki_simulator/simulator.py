@@ -1,7 +1,6 @@
 from datetime import date, timedelta
 from random import randint
 
-
 class Simulator:
 
     def __init__(self, date_array, days_to_simulate, new_cards_per_day, interval_modifier, max_reviews_per_day,
