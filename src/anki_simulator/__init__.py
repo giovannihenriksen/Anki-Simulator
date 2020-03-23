@@ -1,15 +1,16 @@
-# import the main window object (mw) from aqt
-import aqt
 import os
-from PyQt5.QtWidgets import QDialog
-from aqt.qt import *
-from aqt.utils import showInfo
 from datetime import date
 
-from .gui.forms.anki21 import anki_simulator_dialog
-from .gui import graph
+from PyQt5.QtCore import QObject, QSize, QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import QAction, QDialog, QProgressDialog
+
+# import the main window object (mw) from aqt
+import aqt
+from aqt.utils import showInfo, tooltip
 
 from . import simulator
+from .gui import graph
+from .gui.forms.anki21 import anki_simulator_dialog
 
 
 def listToUser(l):
