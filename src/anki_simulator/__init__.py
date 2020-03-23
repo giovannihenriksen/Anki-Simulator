@@ -1,6 +1,6 @@
 from datetime import date
 
-from PyQt5.QtCore import QEventLoop, QObject, QSize, QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QEventLoop, QSize, QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QAction, QApplication, QDialog, QProgressDialog
 
 # import the main window object (mw) from aqt
@@ -48,6 +48,8 @@ class SimulatorDialog(QDialog):
         
         self._thread = None
         self._progress = None
+        
+        self.setWindowModality(Qt.WindowModal)
 
     def setupGraph(self):
         simulationGraph = graph.Graph(parent=self)
@@ -309,7 +311,7 @@ class SimulatorProgressDialog(QProgressDialog):
 
 def open_simulator_dialog(deck_id=None):
     dialog = SimulatorDialog(aqt.mw, deck_id=deck_id)
-    dialog.exec_()
+    dialog.show()
 
 def on_deck_browser_will_show_options_menu(menu, deck_id):
     action = menu.addAction("Simulate")
