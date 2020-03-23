@@ -1,7 +1,8 @@
 import json
 import os
-from PyQt5.QtWebEngineWidgets import QWebEngineView
 from datetime import date
+
+from aqt.webview import AnkiWebView
 
 parent_dir = os.path.abspath(os.path.dirname(__file__))
 
@@ -14,10 +15,10 @@ def json_serial(obj):
     raise TypeError("Type %s not serializable" % type(obj))
 
 
-class Graph(QWebEngineView):
+class Graph(AnkiWebView):
 
-    def __init__(self):
-        super(QWebEngineView, self).__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.__controls()
 
     def __controls(self):
@@ -28,7 +29,7 @@ class Graph(QWebEngineView):
         self.setHtml(html)
 
     def addDataSet(self, label, set):
-        self.page().runJavaScript("newDataSet('{}', '{}')".format(label, json.dumps(set, default=json_serial)))
+        self.eval("newDataSet('{}', '{}')".format(label, json.dumps(set, default=json_serial)))
 
     def clearLastDataset(self):
-        self.page().runJavaScript("clearLastDataset()")
+        self.eval("clearLastDataset()")
