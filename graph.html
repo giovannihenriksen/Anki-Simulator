@@ -1,0 +1,89 @@
+<style>
+        html, body {
+  width:  100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+    </style>
+</head>
+<body>
+<canvas id="chart"></canvas>
+<script>
+
+var ctx = document.getElementById('chart');
+var chart = new Chart(ctx, {
+    type: 'line',
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        tooltips: {
+                mode: 'nearest',
+                intersect: false
+        },
+        hover: {
+            mode: 'nearest',
+            intersect: false
+        },
+        scales: {
+            xAxes: [{
+                type: 'time',
+                distribution: 'linear',
+                time: {
+                    minUnit: 'day'
+                },
+                position: 'bottom',
+                ticks: {
+                    maxTicksLimit: 12,
+                    fontSize: 14
+                }
+            }],
+            yAxes: [{
+                ticks: {
+                    fontSize: 14,
+                    beginAtZero: true,
+                    precision:0
+                },
+                scaleLabel: {
+                    display: true,
+                    labelString: 'Number of reviews',
+                    fontSize : 16,
+                    padding : 12
+                }
+            }]
+        }
+    }
+});
+
+function newDataSet(label, dataAsJSON) {
+    var chartColors =  [
+    'rgb(255, 99, 132)',
+    'rgb(255, 159, 64)',
+    'rgb(255, 205, 86)',
+    'rgb(75, 192, 192)',
+    'rgb(54, 162, 235)',
+    'rgb(153, 102, 255)',
+    'rgb(201, 203, 207)']
+    var color = chartColors[chart.data.datasets.length % chartColors.length]
+    var newDataset = {
+        label: label,
+        backgroundColor: color,
+        borderColor: color,
+        data: JSON.parse(dataAsJSON),
+        fill: false,
+        pointRadius: 1,
+    }
+    chart.data.datasets.push(newDataset);
+    chart.update();
+}
+
+function clearLastDataset() {
+    chart.data.datasets.splice(-1, 1);
+    chart.update();
+}
+
+
+</script>
+</body>
+</html>
