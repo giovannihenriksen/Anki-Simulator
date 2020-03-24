@@ -189,6 +189,28 @@ class SimulatorDialog(QDialog):
                     dateArray[dayToAddNewCardsTo].append(card)
         return dateArray
 
+    def createSimulatedDateArray(self, days_to_simulate, number_of_new_cards_per_day, new_cards_in_deck, starting_ease):
+        cards_left = new_cards_in_deck
+        dateArray = []
+        for day in range(days_to_simulate):
+            if not cards_left:
+                dateArray.append([])
+                continue
+                            
+            cards_for_the_day = []
+            left_today = min(number_of_new_cards_per_day, cards_left)
+            
+            for cid in range(left_today):
+                cards_for_the_day.append(
+                    dict(id=cid, ease=starting_ease, state='unseen', step=0, reviews=[])
+                )
+            
+            dateArray.append(cards_for_the_day)
+            
+            cards_left -= left_today
+        
+        return dateArray
+
     def simulate(self):
         daysToSimulate = int(self.dialog.daysToSimulateSpinbox.value())
         startingEase = int(self.dialog.startingEaseSpinBox.value())
@@ -231,11 +253,22 @@ class SimulatorDialog(QDialog):
             return
         chanceRightYoung = float(self.dialog.percentCorrectYoungSpinbox.value()) / 100
         chanceRightMature = float(self.dialog.percentCorrectMatureSpinbox.value()) / 100
-        includeOverdueCards = self.dialog.includeOverdueCardsCheckbox.isChecked()
-        dateArray = self.loadCards(self.deckChooser.selectedId(), daysToSimulate,
-                                   int(self.dialog.newCardsPerDaySpinbox.value()),
-                                   startingEase, len(learningSteps), len(lapseSteps), includeOverdueCards)  # returns an array of days,
-        # each day is another array that contains all the cards for that day
+        
+        mockCardState = self.dialog.mockedCardStateRadio.isChecked()
+        mockedNewCards = self.dialog.mockedNewCardsSpinbox.value()
+        
+        if not mockCardState:
+            # Use actual card data for simulation
+            includeOverdueCards = self.dialog.includeOverdueCardsCheckbox.isChecked()
+            # returns an array of days, each day is another array that contains all
+            # the cards for that day:
+            dateArray = self.loadCards(self.deckChooser.selectedId(), daysToSimulate,
+                                       int(self.dialog.newCardsPerDaySpinbox.value()),
+                                       startingEase, len(learningSteps), len(lapseSteps), includeOverdueCards)  
+        else:
+            # Simulate a deck with x new cards
+            dateArray = self.createSimulatedDateArray(
+                daysToSimulate, newCardsPerDay, mockedNewCards, startingEase)
 
 
         sim = Simulator(dateArray, daysToSimulate, newCardsPerDay, intervalModifier, maxReviewsPerDay,
