@@ -4,8 +4,6 @@ from datetime import date
 
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 
-from aqt import mw
-
 try:
     from aqt.theme import theme_manager
 except (ImportError, ModuleNotFoundError):
