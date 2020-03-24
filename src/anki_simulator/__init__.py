@@ -43,11 +43,8 @@ class SimulatorDialog(QDialog):
         self.dialog.loadDeckConfigurationsButton.clicked.connect(self.loadDeckConfigurations)
         self.dialog.clearLastSimulationButton.clicked.connect(self.clear_last_simulation)
         self.loadDeckConfigurations()
-        self.warnedAboutOverdueCards = False
         self.numberOfSimulations = 0
-        
         restoreGeom(self, "simulatorDialog")
-        
         self._thread = None
         self._progress = None
 
@@ -110,7 +107,7 @@ class SimulatorDialog(QDialog):
             card = self.mw.col.getCard(cid)
             if card.type == 0:
                 # New card
-                review = dict(id=card.id, ease=starting_ease, state='unseen', step=0, reviews=[])
+                review = dict(id=card.id, ease=starting_ease, state='unseen', step=0, reviews=[], delay=0)
                 newCards.append(review)
             elif card.type == 1:
                 # Learning card
@@ -130,7 +127,7 @@ class SimulatorDialog(QDialog):
                         # Card is overdue. We will not include it in the simulation.
                         continue
                 review = dict(id=card.id, ease=starting_ease, state='learning',
-                              step=max(number_of_learning_steps - (card.left % 10), -1), reviews=[])
+                              step=max(number_of_learning_steps - (card.left % 10), -1), reviews=[], delay=0)
                 if cardDue < days_to_simulate:
                     dateArray[cardDue].append(review)
             elif card.type == 2:
@@ -148,10 +145,10 @@ class SimulatorDialog(QDialog):
                     else:
                         # Card is overdue. We will not include it in the simulation.
                         continue
-                review = dict(id=card.id, ease=card.factor / 10, currentInterval=card.ivl)
+                review = dict(id=card.id, ease=card.factor / 10, currentInterval=card.ivl, delay=0)
                 if card.ivl >= 21:
                     review['state'] = 'mature'
-                if card.ivl < 21:
+                else:
                     review['state'] = 'young'
                 review['reviews'] = []
                 if cardDue < days_to_simulate:
@@ -175,7 +172,7 @@ class SimulatorDialog(QDialog):
                         continue
                 review = dict(id=card.id, ease=card.factor / 10, state='relearn', currentInterval=card.ivl,
                               step=max(number_of_lapse_steps - (
-                                      card.left % 10), -1), reviews=[])
+                                      card.left % 10), -1), reviews=[], delay=0)
                 if cardDue < days_to_simulate:
                     dateArray[cardDue].append(review)
 
@@ -270,34 +267,33 @@ class SimulatorDialog(QDialog):
             dateArray = self.createSimulatedDateArray(
                 daysToSimulate, newCardsPerDay, mockedNewCards, startingEase)
 
-
         sim = Simulator(dateArray, daysToSimulate, newCardsPerDay, intervalModifier, maxReviewsPerDay,
                         learningSteps, lapseSteps, graduatingInterval, newLapseInterval, maxInterval,
                         chanceRightUnseen, percentagesCorrectForLearningSteps,
                         percentagesCorrectForLapseSteps, chanceRightYoung, chanceRightMature)
-        
+
         thread = SimulatorThread(sim, parent=self)
         progress = SimulatorProgressDialog(maximum=len(dateArray), parent=self)
-        
+
         thread.done.connect(progress.finish)
         thread.done.connect(self._on_simulation_done)
         thread.canceled.connect(self._on_simulation_canceled)
-        
+
         thread.tick.connect(progress.update)
         progress.canceled.connect(thread.cancel)
-       
+
         self._thread = thread
         self._progress = progress
-       
+
         self._thread.start()
         self._progress.exec_()
-        
+
     def _on_simulation_done(self, data):
         self.numberOfSimulations += 1
         deck = self.mw.col.decks.get(self.deckChooser.selectedId())
         simulationTitle = "{} ({})".format(self.dialog.simulationTitleTextfield.text(), deck['name'])
         self.dialog.simulationGraph.addDataSet(simulationTitle, data)
-        self.dialog.simulationTitleTextfield.setText("Simulation {}".format(self.numberOfSimulations+1))
+        self.dialog.simulationTitleTextfield.setText("Simulation {}".format(self.numberOfSimulations + 1))
         self.dialog.clearLastSimulationButton.setEnabled(True)
 
     def _on_simulation_canceled(self):
@@ -315,17 +311,17 @@ class SimulatorDialog(QDialog):
         if not self.dialog.simulationTitleTextfield.isModified():
             self.dialog.simulationTitleTextfield.setText("Simulation {}".format(self.numberOfSimulations + 1))
 
+
 class SimulatorThread(QThread):
-    
     done = pyqtSignal(object)
     canceled = pyqtSignal()
     tick = pyqtSignal(int)
-    
+
     def __init__(self, simulator, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._simulator = simulator
         self.do_cancel = False
-    
+
     def run(self):
         data = self._simulator.simulate(self)
         if data is None:
@@ -335,6 +331,7 @@ class SimulatorThread(QThread):
 
     def cancel(self):
         self.do_cancel = True
+
 
 class SimulatorProgressDialog(QProgressDialog):
     def __init__(self, minimum=0, maximum=100, *args, **kwargs):
@@ -355,9 +352,11 @@ def open_simulator_dialog(deck_id=None):
     dialog = SimulatorDialog(aqt.mw, deck_id=deck_id)
     dialog.show()
 
+
 def on_deck_browser_will_show_options_menu(menu, deck_id):
     action = menu.addAction("Simulate")
     action.triggered.connect(lambda _, did=deck_id: open_simulator_dialog(did))
+
 
 # Main menu
 
@@ -369,7 +368,9 @@ aqt.mw.form.menuTools.addAction(action)
 
 try:  # Anki 2.1.20+
     from aqt.gui_hooks import deck_browser_will_show_options_menu
+
     deck_browser_will_show_options_menu.append(on_deck_browser_will_show_options_menu)
 except (ImportError, ModuleNotFoundError):
     from anki.hooks import addHook
+
     addHook("showDeckOptions", on_deck_browser_will_show_options_menu)
