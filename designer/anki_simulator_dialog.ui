@@ -759,15 +759,28 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>loadDeckConfigurationsButton</tabstop>
   <tabstop>newCardsPerDaySpinbox</tabstop>
   <tabstop>startingEaseSpinBox</tabstop>
   <tabstop>intervalModifierSpinbox</tabstop>
   <tabstop>maximumReviewsPerDaySpinbox</tabstop>
   <tabstop>learningStepsTextfield</tabstop>
   <tabstop>lapseStepsTextfield</tabstop>
+  <tabstop>graduatingIntervalSpinbox</tabstop>
+  <tabstop>newLapseIntervalSpinbox</tabstop>
+  <tabstop>maximumIntervalSpinbox</tabstop>
+  <tabstop>actualCardStateRadio</tabstop>
+  <tabstop>includeOverdueCardsCheckbox</tabstop>
+  <tabstop>mockedCardStateRadio</tabstop>
+  <tabstop>mockedNewCardsSpinbox</tabstop>
+  <tabstop>daysToSimulateSpinbox</tabstop>
+  <tabstop>percentCorrectUnseenSpinbox</tabstop>
+  <tabstop>percentCorrectYoungSpinbox</tabstop>
+  <tabstop>percentCorrectMatureSpinbox</tabstop>
+  <tabstop>percentCorrectLearningTextfield</tabstop>
+  <tabstop>percentCorrectLapseTextfield</tabstop>
   <tabstop>simulationTitleTextfield</tabstop>
   <tabstop>simulateButton</tabstop>
-  <tabstop>loadDeckConfigurationsButton</tabstop>
   <tabstop>clearLastSimulationButton</tabstop>
  </tabstops>
  <resources/>
