@@ -1,3 +1,22 @@
+# Anki Simulator Add-on for Anki
+#
+# Copyright (C) 2020  GiovanniHenriksen https://github.com/giovannihenriksen
+# Copyright (C) 2020  Aristotelis P. https://glutanimate.com/
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see https://www.gnu.org/licenses/.
+
+
 from datetime import date
 
 from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
@@ -10,6 +29,7 @@ from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip
 from .gui import graph
 from .gui.forms.anki21 import anki_simulator_dialog
 from .simulator import Simulator
+from .gui.forms.anki21 import about_dialog
 
 
 def listToUser(l):
@@ -45,11 +65,16 @@ class SimulatorDialog(QDialog):
         self.dialog.clearLastSimulationButton.clicked.connect(
             self.clear_last_simulation
         )
+        self.dialog.aboutButton.clicked.connect(self.showAboutDialog)
         self.loadDeckConfigurations()
         self.numberOfSimulations = 0
         restoreGeom(self, "simulatorDialog")
         self._thread = None
         self._progress = None
+
+    def showAboutDialog(self):
+        aboutDialog = AboutDialog(self)
+        aboutDialog.exec_()
 
     def reject(self):
         saveGeom(self, "simulatorDialog")
@@ -438,6 +463,17 @@ class SimulatorProgressDialog(QProgressDialog):
     @pyqtSlot()
     def finish(self):
         self.setValue(self.maximum())
+
+
+class AboutDialog(QDialog):
+    def __init__(self, parent):
+        QDialog.__init__(self, parent)
+        self.dialog = about_dialog.Ui_about_dialog()
+        self.dialog.setupUi(self)
+        self.dialog.closeButton.clicked.connect(self.close)
+
+    def close(self):
+        self.reject()
 
 
 def open_simulator_dialog(deck_id=None):
