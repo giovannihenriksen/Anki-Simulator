@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1017</width>
-    <height>676</height>
+    <width>1100</width>
+    <height>750</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Anki Simulator</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0,0,100">
    <item>
     <widget class="QWidget" name="toolbar" native="true">
      <property name="sizePolicy">
@@ -68,51 +68,34 @@
        <number>24</number>
       </property>
       <property name="verticalSpacing">
-       <number>-1</number>
+       <number>6</number>
       </property>
-      <item row="3" column="0">
-       <widget class="QLabel" name="startingEaseLabel">
-        <property name="text">
-         <string>Starting ease</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="3">
-       <widget class="QSpinBox" name="maximumIntervalSpinbox">
+      <item row="3" column="3">
+       <widget class="QLineEdit" name="learningStepsTextfield">
         <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <property name="suffix">
-         <string/>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>0</height>
+         </size>
         </property>
-        <property name="prefix">
-         <string/>
+        <property name="maximumSize">
+         <size>
+          <width>160</width>
+          <height>16777215</height>
+         </size>
         </property>
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <number>9999</number>
-        </property>
-        <property name="singleStep">
-         <number>1</number>
-        </property>
-        <property name="value">
-         <number>365</number>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="2">
-       <widget class="QLabel" name="maximumIntervalLabel">
         <property name="text">
-         <string>Maximum interval (days)</string>
+         <string>30 2880 8640</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="3">
+      <item row="3" column="6">
        <widget class="QSpinBox" name="newLapseIntervalSpinbox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -134,238 +117,6 @@
         </property>
         <property name="value">
          <number>60</number>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="6">
-       <widget class="QSpinBox" name="percentCorrectUnseenSpinbox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="suffix">
-         <string>%</string>
-        </property>
-        <property name="prefix">
-         <string/>
-        </property>
-        <property name="minimum">
-         <number>0</number>
-        </property>
-        <property name="maximum">
-         <number>100</number>
-        </property>
-        <property name="singleStep">
-         <number>1</number>
-        </property>
-        <property name="value">
-         <number>30</number>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="2">
-       <widget class="QLabel" name="graduatingIntervalLabel">
-        <property name="text">
-         <string>Graduating interval (days)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="3">
-       <widget class="QSpinBox" name="graduatingIntervalSpinbox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="suffix">
-         <string/>
-        </property>
-        <property name="prefix">
-         <string/>
-        </property>
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <number>9999</number>
-        </property>
-        <property name="singleStep">
-         <number>1</number>
-        </property>
-        <property name="value">
-         <number>20</number>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QLabel" name="intervalModifierLabel">
-        <property name="text">
-         <string>Interval modifier</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QSpinBox" name="intervalModifierSpinbox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="suffix">
-         <string>%</string>
-        </property>
-        <property name="prefix">
-         <string/>
-        </property>
-        <property name="maximum">
-         <number>999</number>
-        </property>
-        <property name="singleStep">
-         <number>10</number>
-        </property>
-        <property name="value">
-         <number>100</number>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="4">
-       <widget class="QLabel" name="percentCorrectYoungLabel">
-        <property name="text">
-         <string>% correct young cards</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="6">
-       <widget class="QSpinBox" name="percentCorrectYoungSpinbox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="suffix">
-         <string>%</string>
-        </property>
-        <property name="prefix">
-         <string/>
-        </property>
-        <property name="minimum">
-         <number>1</number>
-        </property>
-        <property name="maximum">
-         <number>100</number>
-        </property>
-        <property name="singleStep">
-         <number>1</number>
-        </property>
-        <property name="value">
-         <number>90</number>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="4">
-       <widget class="QLabel" name="percentCorrectMatureLabel">
-        <property name="text">
-         <string>% correct mature cards</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QLabel" name="learningStepsLabel">
-        <property name="text">
-         <string>Learning steps</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3">
-       <widget class="QLineEdit" name="learningStepsTextfield">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>30 2880 8640</string>
-        </property>
-       </widget>
-      </item>
-      <item row="8" column="2">
-       <widget class="QLabel" name="newLapseIntervalLabel">
-        <property name="text">
-         <string>New lapse interval</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="3">
-       <widget class="QLineEdit" name="lapseStepsTextfield">
-        <property name="minimumSize">
-         <size>
-          <width>100</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>1440</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QLabel" name="maximumReviewsPerDayLabel">
-        <property name="text">
-         <string>Maximum reviews per day</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="newCardsPerDayLabel">
-        <property name="text">
-         <string>New cards per day</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="1">
-       <widget class="QSpinBox" name="startingEaseSpinBox">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="suffix">
-         <string>%</string>
-        </property>
-        <property name="prefix">
-         <string/>
-        </property>
-        <property name="minimum">
-         <number>130</number>
-        </property>
-        <property name="maximum">
-         <number>999</number>
-        </property>
-        <property name="singleStep">
-         <number>10</number>
-        </property>
-        <property name="value">
-         <number>250</number>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="4">
-       <widget class="QLabel" name="percentCorrectLearningLabel">
-        <property name="text">
-         <string>% correct learning steps</string>
         </property>
        </widget>
       </item>
@@ -397,30 +148,166 @@
         </property>
        </widget>
       </item>
-      <item row="5" column="2">
-       <widget class="QLabel" name="lapseStepsLabel">
-        <property name="text">
-         <string>Lapse steps</string>
+      <item row="2" column="6">
+       <widget class="QSpinBox" name="graduatingIntervalSpinbox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>9999</number>
+        </property>
+        <property name="singleStep">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <number>20</number>
         </property>
        </widget>
       </item>
-      <item row="5" column="4">
-       <widget class="QLabel" name="percentCorrectLapseLabel">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_3">
         <property name="text">
-         <string>% correct lapse steps</string>
+         <string>&lt;b&gt;Deck Options&lt;/b&gt;</string>
         </property>
        </widget>
       </item>
-      <item row="5" column="6">
-       <widget class="QLineEdit" name="percentCorrectLapseTextfield">
+      <item row="5" column="5">
+       <widget class="QLabel" name="maximumIntervalLabel">
+        <property name="text">
+         <string>Maximum interval (days)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="intervalModifierLabel">
+        <property name="text">
+         <string>Interval modifier</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QSpinBox" name="startingEaseSpinBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="suffix">
+         <string>%</string>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="minimum">
+         <number>130</number>
+        </property>
+        <property name="maximum">
+         <number>999</number>
+        </property>
+        <property name="singleStep">
+         <number>10</number>
+        </property>
+        <property name="value">
+         <number>250</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QLabel" name="maximumReviewsPerDayLabel">
+        <property name="text">
+         <string>Maximum reviews per day</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QLineEdit" name="lapseStepsTextfield">
         <property name="minimumSize">
          <size>
-          <width>70</width>
+          <width>100</width>
           <height>0</height>
          </size>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>160</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="text">
-         <string>90 90</string>
+         <string>1440</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="5">
+       <widget class="QLabel" name="newLapseIntervalLabel">
+        <property name="text">
+         <string>New lapse interval</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="newCardsPerDayLabel">
+        <property name="text">
+         <string>New cards per day</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QSpinBox" name="intervalModifierSpinbox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="suffix">
+         <string>%</string>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="maximum">
+         <number>999</number>
+        </property>
+        <property name="singleStep">
+         <number>10</number>
+        </property>
+        <property name="value">
+         <number>100</number>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="5">
+       <widget class="QLabel" name="graduatingIntervalLabel">
+        <property name="text">
+         <string>Graduating interval (days)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="startingEaseLabel">
+        <property name="text">
+         <string>Starting ease</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QLabel" name="learningStepsLabel">
+        <property name="text">
+         <string>Learning steps</string>
         </property>
        </widget>
       </item>
@@ -452,8 +339,121 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="6">
-       <widget class="QSpinBox" name="percentCorrectMatureSpinbox">
+      <item row="5" column="2">
+       <widget class="QLabel" name="lapseStepsLabel">
+        <property name="text">
+         <string>Lapse steps</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="6">
+       <widget class="QSpinBox" name="maximumIntervalSpinbox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="suffix">
+         <string/>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>9999</number>
+        </property>
+        <property name="singleStep">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <number>365</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="widget" native="true">
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>&lt;b&gt;Simulation Options&lt;/b&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>5</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="5">
+       <widget class="QLabel" name="label_5">
+        <property name="text">
+         <string>&lt;b&gt;Your Performance&lt;/b&gt;</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="8">
+       <widget class="QLabel" name="percentCorrectLearningLabel">
+        <property name="text">
+         <string>% correct learning steps</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="6">
+       <widget class="QSpinBox" name="percentCorrectUnseenSpinbox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="suffix">
+         <string>%</string>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="singleStep">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <number>30</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="5">
+       <widget class="QLabel" name="percentCorrectMatureLabel">
+        <property name="text">
+         <string>% correct mature cards</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="6">
+       <widget class="QSpinBox" name="percentCorrectYoungSpinbox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
           <horstretch>0</horstretch>
@@ -481,6 +481,34 @@
        </widget>
       </item>
       <item row="3" column="6">
+       <widget class="QSpinBox" name="percentCorrectMatureSpinbox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="suffix">
+         <string>%</string>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+        <property name="singleStep">
+         <number>1</number>
+        </property>
+        <property name="value">
+         <number>90</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="9">
        <widget class="QLineEdit" name="percentCorrectLearningTextfield">
         <property name="minimumSize">
          <size>
@@ -493,21 +521,31 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="4">
-       <widget class="QLabel" name="percentCorrectUnseenLabel">
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_4">
         <property name="text">
-         <string>% correct unseen cards</string>
+         <string>Cards</string>
         </property>
        </widget>
       </item>
-      <item row="10" column="0">
-       <widget class="QCheckBox" name="includeOverdueCardsCheckbox">
+      <item row="3" column="0">
+       <widget class="QLabel" name="daysToSimulateLabel">
         <property name="text">
-         <string>Include overdue cards</string>
+         <string>Days to simulate</string>
         </property>
        </widget>
       </item>
-      <item row="8" column="1">
+      <item row="1" column="1">
+       <widget class="QRadioButton" name="actualCardStateRadio">
+        <property name="text">
+         <string>Use actual cards in deck</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
        <widget class="QSpinBox" name="daysToSimulateSpinbox">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -535,12 +573,101 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="0">
-       <widget class="QLabel" name="daysToSimulateLabel">
+      <item row="0" column="4">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>5</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="2" column="8">
+       <widget class="QLabel" name="percentCorrectLapseLabel">
         <property name="text">
-         <string>Days to simulate</string>
+         <string>% correct lapse steps</string>
         </property>
        </widget>
+      </item>
+      <item row="1" column="5">
+       <widget class="QLabel" name="percentCorrectUnseenLabel">
+        <property name="text">
+         <string>% correct unseen cards</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="5">
+       <widget class="QLabel" name="percentCorrectYoungLabel">
+        <property name="text">
+         <string>% correct young cards</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QRadioButton" name="mockedCardStateRadio">
+        <property name="text">
+         <string>Simulate new cards:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <widget class="QCheckBox" name="includeOverdueCardsCheckbox">
+        <property name="text">
+         <string>Include overdue cards</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="9">
+       <widget class="QLineEdit" name="percentCorrectLapseTextfield">
+        <property name="minimumSize">
+         <size>
+          <width>70</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>90 90</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QSpinBox" name="mockedNewCardsSpinbox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>80</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="maximum">
+         <number>99999999</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="7">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Minimum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>10</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>
@@ -554,12 +681,6 @@
       </sizepolicy>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <property name="topMargin">
-       <number>2</number>
-      </property>
-      <property name="bottomMargin">
-       <number>2</number>
-      </property>
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
@@ -598,6 +719,9 @@
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Expanding</enum>
+        </property>
         <property name="sizeHint" stdset="0">
          <size>
           <width>40</width>
@@ -625,30 +749,60 @@
      </layout>
     </widget>
    </item>
+   <item>
+    <layout class="QVBoxLayout" name="graphLayout">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+    </layout>
+   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>newCardsPerDaySpinbox</tabstop>
   <tabstop>startingEaseSpinBox</tabstop>
   <tabstop>intervalModifierSpinbox</tabstop>
-  <tabstop>daysToSimulateSpinbox</tabstop>
   <tabstop>maximumReviewsPerDaySpinbox</tabstop>
   <tabstop>learningStepsTextfield</tabstop>
   <tabstop>lapseStepsTextfield</tabstop>
-  <tabstop>graduatingIntervalSpinbox</tabstop>
-  <tabstop>newLapseIntervalSpinbox</tabstop>
-  <tabstop>maximumIntervalSpinbox</tabstop>
-  <tabstop>percentCorrectUnseenSpinbox</tabstop>
-  <tabstop>percentCorrectLearningTextfield</tabstop>
-  <tabstop>percentCorrectLapseTextfield</tabstop>
-  <tabstop>percentCorrectYoungSpinbox</tabstop>
-  <tabstop>percentCorrectMatureSpinbox</tabstop>
-  <tabstop>includeOverdueCardsCheckbox</tabstop>
   <tabstop>simulationTitleTextfield</tabstop>
   <tabstop>simulateButton</tabstop>
   <tabstop>loadDeckConfigurationsButton</tabstop>
   <tabstop>clearLastSimulationButton</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actualCardStateRadio</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mockedNewCardsSpinbox</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>317</x>
+     <y>253</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>390</x>
+     <y>283</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mockedCardStateRadio</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>includeOverdueCardsCheckbox</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>280</x>
+     <y>283</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>419</x>
+     <y>248</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
