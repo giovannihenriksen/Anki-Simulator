@@ -36,9 +36,15 @@ class Graph(AnkiWebView):
         if theme_manager and theme_manager.night_mode:
             html += "<style>#chart{background-color:black;}</style>"
             html += (
-                "<script>Chart.defaults.global.defaultFontColor = 'white';"
+                "<script>"
+                "Chart.defaults.global.defaultFontColor = 'white';"
                 "Chart.defaults.scale.gridLines.color = 'rgba(255, 255, 255, 0.2)';"
-                "Chart.defaults.scale.gridLines.zeroLineColor = 'rgba(255, 255, 255, 0.25)';</script>"
+                "Chart.defaults.scale.gridLines.zeroLineColor = 'rgba(255, 255, 255, 0.25)';"
+                "Chart.defaults.global.tooltips.backgroundColor = 'rgba(255, 255, 255, 0.9)';"
+                "Chart.defaults.global.tooltips.bodyFontColor = 'rgba(0, 0, 0, 1)';"
+                "Chart.defaults.global.tooltips.titleFontColor = 'rgba(0, 0, 0, 1)';"
+                "Chart.defaults.global.tooltips.footerFontColor = 'rgba(0, 0, 0, 1)';"
+                "</script>"
             )
         html += open(path, "r").read()
         self.setHtml(html)

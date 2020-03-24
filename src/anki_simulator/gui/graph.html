@@ -72,7 +72,8 @@ function newDataSet(label, dataAsJSON) {
         borderColor: color,
         data: JSON.parse(dataAsJSON),
         fill: false,
-        pointRadius: 1,
+        pointRadius: 0,
+        pointHoverRadius: 4,
     }
     chart.data.datasets.push(newDataset);
     chart.update();
