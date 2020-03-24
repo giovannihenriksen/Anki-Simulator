@@ -64,7 +64,8 @@ class SimulatorDialog(QDialog):
         simulationGraph.setMinimumSize(QSize(0, 227))
         simulationGraph.setObjectName("simulationGraph")
         self.dialog.simulationGraph = simulationGraph
-        self.dialog.verticalLayout.addWidget(self.dialog.simulationGraph)
+        self.dialog.graphLayout.addWidget(self.dialog.simulationGraph)
+        self.dialog.verticalLayout.setStretchFactor(self.dialog.graphLayout, 10)
 
     def loadDeckConfigurations(self):
         deckID = self.deckChooser.selectedId()
