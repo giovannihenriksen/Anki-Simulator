@@ -2,7 +2,7 @@ import json
 import os
 from datetime import date
 
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from aqt.webview import AnkiWebView
 
 try:
     from aqt.theme import theme_manager
@@ -20,7 +20,7 @@ def json_serial(obj):
     raise TypeError("Type %s not serializable" % type(obj))
 
 
-class Graph(QWebEngineView):
+class Graph(AnkiWebView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setEnabled(False)
@@ -54,7 +54,7 @@ class Graph(QWebEngineView):
     def _runJavascript(self, script: str):
         # workaround for widget focus stealing issues
         self.setEnabled(False)
-        self.page().runJavaScript(script, self.__onJavascriptEvaluated)
+        self.evalWithCallback(script, self.__onJavascriptEvaluated)
 
     def __onJavascriptEvaluated(self, *args):
         self.setEnabled(True)
