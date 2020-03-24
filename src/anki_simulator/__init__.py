@@ -199,7 +199,7 @@ class SimulatorDialog(QDialog):
             
             for cid in range(left_today):
                 cards_for_the_day.append(
-                    dict(id=cid, ease=starting_ease, state='unseen', step=0, reviews=[])
+                    dict(id=cid, ease=starting_ease, state='unseen', step=0, reviews=[], delay=0)
                 )
             
             dateArray.append(cards_for_the_day)
