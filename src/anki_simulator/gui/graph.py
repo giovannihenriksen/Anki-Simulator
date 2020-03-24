@@ -2,7 +2,9 @@ import json
 import os
 from datetime import date
 
-from aqt.webview import AnkiWebView
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+
+from aqt import mw
 
 try:
     from aqt.theme import theme_manager
@@ -20,9 +22,10 @@ def json_serial(obj):
     raise TypeError("Type %s not serializable" % type(obj))
 
 
-class Graph(AnkiWebView):
+class Graph(QWebEngineView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.setEnabled(False)
         self.__controls()
 
     def __controls(self):
@@ -43,9 +46,17 @@ class Graph(AnkiWebView):
         self.setHtml(html)
 
     def addDataSet(self, label, set):
-        self.eval(
+        self._runJavascript(
             "newDataSet('{}', '{}')".format(label, json.dumps(set, default=json_serial))
         )
 
     def clearLastDataset(self):
-        self.eval("clearLastDataset()")
+        self._runJavascript("clearLastDataset()")
+
+    def _runJavascript(self, script: str):
+        # workaround for widget focus stealing issues
+        self.setEnabled(False)
+        self.page().runJavaScript(script, self.__onJavascriptEvaluated)
+
+    def __onJavascriptEvaluated(self, *args):
+        self.setEnabled(True)
