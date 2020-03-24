@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1100</width>
-    <height>750</height>
+    <height>592</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,6 +23,12 @@
       </sizepolicy>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QWidget" name="deckChooser" native="true">
         <property name="sizePolicy">
@@ -59,10 +65,10 @@
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <property name="topMargin">
-       <number>12</number>
+       <number>0</number>
       </property>
       <property name="bottomMargin">
-       <number>12</number>
+       <number>0</number>
       </property>
       <property name="horizontalSpacing">
        <number>24</number>
@@ -648,8 +654,14 @@
           <height>16777215</height>
          </size>
         </property>
+        <property name="minimum">
+         <number>0</number>
+        </property>
         <property name="maximum">
          <number>99999999</number>
+        </property>
+        <property name="value">
+         <number>1000</number>
         </property>
        </widget>
       </item>
@@ -681,6 +693,12 @@
       </sizepolicy>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
