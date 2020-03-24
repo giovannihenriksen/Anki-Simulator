@@ -23,6 +23,7 @@ def json_serial(obj):
 class Graph(AnkiWebView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.setEnabled(False)
         self.__controls()
 
     def __controls(self):
@@ -49,9 +50,17 @@ class Graph(AnkiWebView):
         self.setHtml(html)
 
     def addDataSet(self, label, set):
-        self.eval(
+        self._runJavascript(
             "newDataSet('{}', '{}')".format(label, json.dumps(set, default=json_serial))
         )
 
     def clearLastDataset(self):
-        self.eval("clearLastDataset()")
+        self._runJavascript("clearLastDataset()")
+
+    def _runJavascript(self, script: str):
+        # workaround for widget focus stealing issues
+        self.setEnabled(False)
+        self.evalWithCallback(script, self.__onJavascriptEvaluated)
+
+    def __onJavascriptEvaluated(self, *args):
+        self.setEnabled(True)
