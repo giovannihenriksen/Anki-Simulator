@@ -132,6 +132,7 @@ class SimulatorDialog(QDialog):
         number_of_learning_steps,
         number_of_lapse_steps,
         include_overdue_cards,
+        include_suspended_new_cards,
     ):
         # Before we start the simulation, we will collect all the cards from the database.
         crt = date.fromtimestamp(
@@ -148,15 +149,16 @@ class SimulatorDialog(QDialog):
             card = self.mw.col.getCard(cid)
             if card.type == 0:
                 # New card
-                review = dict(
-                    id=card.id,
-                    ease=starting_ease,
-                    state="unseen",
-                    step=0,
-                    reviews=[],
-                    delay=0,
-                )
-                newCards.append(review)
+                if card.queue != -1 or include_suspended_new_cards:
+                    review = dict(
+                        id=card.id,
+                        ease=starting_ease,
+                        state="unseen",
+                        step=0,
+                        reviews=[],
+                        delay=0,
+                    )
+                    newCards.append(review)
             elif card.type == 1:
                 # Learning card
                 if card.queue == -1:
@@ -348,6 +350,9 @@ class SimulatorDialog(QDialog):
         if not mockCardState:
             # Use actual card data for simulation
             includeOverdueCards = self.dialog.includeOverdueCardsCheckbox.isChecked()
+            includeSuspendedNewCards = (
+                self.dialog.includeSuspendedNewCardsCheckbox.isChecked()
+            )
             # returns an array of days, each day is another array that contains all
             # the cards for that day:
             dateArray = self.loadCards(
@@ -358,6 +363,7 @@ class SimulatorDialog(QDialog):
                 len(learningSteps),
                 len(lapseSteps),
                 includeOverdueCards,
+                includeSuspendedNewCards,
             )
         else:
             # Simulate a deck with x new cards
