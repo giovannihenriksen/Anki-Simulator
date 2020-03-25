@@ -811,13 +811,20 @@
   <tabstop>newLapseIntervalSpinbox</tabstop>
   <tabstop>maximumIntervalSpinbox</tabstop>
   <tabstop>actualCardStateRadio</tabstop>
+  <tabstop>includeSuspendedNewCardsCheckbox</tabstop>
+  <tabstop>includeOverdueCardsCheckbox</tabstop>
   <tabstop>mockedCardStateRadio</tabstop>
   <tabstop>mockedNewCardsSpinbox</tabstop>
   <tabstop>percentCorrectUnseenSpinbox</tabstop>
+  <tabstop>percentCorrectYoungSpinbox</tabstop>
+  <tabstop>percentCorrectMatureSpinbox</tabstop>
   <tabstop>percentCorrectLearningTextfield</tabstop>
+  <tabstop>percentCorrectLapseTextfield</tabstop>
   <tabstop>simulationTitleTextfield</tabstop>
+  <tabstop>daysToSimulateSpinbox</tabstop>
   <tabstop>simulateButton</tabstop>
   <tabstop>clearLastSimulationButton</tabstop>
+  <tabstop>aboutButton</tabstop>
  </tabstops>
  <resources/>
  <connections>
