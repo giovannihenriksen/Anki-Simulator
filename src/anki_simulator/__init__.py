@@ -18,6 +18,7 @@
 
 import gc
 from datetime import date
+import time
 
 from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QAction, QApplication, QDialog, QProgressDialog
@@ -461,6 +462,7 @@ class SimulatorThread(QThread):
         super().__init__(*args, **kwargs)
         self._simulator = simulator
         self.do_cancel = False
+        self._last_tick = time.time()
 
     def run(self):
         data = self._simulator.simulate(self)
@@ -471,6 +473,12 @@ class SimulatorThread(QThread):
 
     def cancel(self):
         self.do_cancel = True
+    
+    def day_processed(self, day: int):
+        now = time.time()
+        if (now - self._last_tick) >= 0.1:
+            self.tick.emit(day)
+            self._last_tick = now
 
 
 class SimulatorProgressDialog(QProgressDialog):
