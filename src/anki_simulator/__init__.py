@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see https://www.gnu.org/licenses/.
 
-
+import gc
 from datetime import date
 
 from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
@@ -27,9 +27,8 @@ import aqt
 from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip
 
 from .gui import graph
-from .gui.forms.anki21 import anki_simulator_dialog
+from .gui.forms.anki21 import about_dialog, anki_simulator_dialog
 from .simulator import Simulator
-from .gui.forms.anki21 import about_dialog
 
 
 def listToUser(l):
@@ -406,6 +405,8 @@ class SimulatorDialog(QDialog):
         self._progress.exec_()
 
     def _on_simulation_done(self, data):
+        self.__gc_qobjects()
+        
         self.numberOfSimulations += 1
         deck = self.mw.col.decks.get(self.deckChooser.selectedId())
         mockCardState = self.dialog.mockedCardStateRadio.isChecked()
@@ -422,11 +423,23 @@ class SimulatorDialog(QDialog):
         self.dialog.clearLastSimulationButton.setEnabled(True)
 
     def _on_simulation_canceled(self):
+        self.__gc_qobjects()
+        
         if self._progress:
             # seems to be necessary to prevent progress dialog from being stuck:
             QApplication.instance().processEvents(QEventLoop.ExcludeUserInputEvents)
             self._progress.cancel()
         tooltip("Canceled", parent=self)
+
+    def __gc_qobjects(self):
+        # manually garbage collect to prevent memory leak:
+        if self._progress:
+            self._progress.deleteLater()
+            self._progress = None
+        if self._thread:
+            self._thread.deleteLater()
+            self._thread = None
+        gc.collect()
 
     def clear_last_simulation(self):
         self.dialog.simulationGraph.clearLastDataset()
