@@ -408,9 +408,13 @@ class SimulatorDialog(QDialog):
     def _on_simulation_done(self, data):
         self.numberOfSimulations += 1
         deck = self.mw.col.decks.get(self.deckChooser.selectedId())
-        simulationTitle = "{} ({})".format(
-            self.dialog.simulationTitleTextfield.text(), deck["name"]
-        )
+        mockCardState = self.dialog.mockedCardStateRadio.isChecked()
+        if mockCardState:
+            simulationTitle = self.dialog.simulationTitleTextfield.text()
+        else:
+            simulationTitle = "{} ({})".format(
+                self.dialog.simulationTitleTextfield.text(), deck["name"]
+            )
         self.dialog.simulationGraph.addDataSet(simulationTitle, data)
         self.dialog.simulationTitleTextfield.setText(
             "Simulation {}".format(self.numberOfSimulations + 1)
