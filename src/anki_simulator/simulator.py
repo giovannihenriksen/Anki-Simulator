@@ -92,7 +92,7 @@ class Simulator:
         while dayIndex < len(self.dateArray):
 
             if controller:
-                controller.tick.emit(dayIndex)
+                controller.day_processed(dayIndex)
 
             reviewNumber = 0
             idsDoneToday = []
