@@ -18,7 +18,7 @@
 
 from datetime import date, timedelta
 from random import randint
-from typing import Optional, List
+from typing import Optional, List, Dict, Union
 
 from .collection_simulator import (
     CARD_STATE_NEW,
@@ -90,7 +90,7 @@ class ReviewSimulator:
         )
         return int(min(constrainedGoodInterval, self.maxInterval))
 
-    def simulate(self, controller=None) -> Optional[List[dict]]:
+    def simulate(self, controller=None) -> Optional[List[Dict[str, Union[str, int]]]]:
         dayIndex = 0
 
         while dayIndex < len(self.dateArray):
@@ -217,6 +217,6 @@ class ReviewSimulator:
         today = date.today()
 
         return [
-            dict(x=(today + timedelta(days=index)), y=len(reviews))
+            {"x": (today + timedelta(days=index)).isoformat(), "y": len(reviews)}
             for index, reviews in enumerate(self.dateArray)
         ]  # Returns the number of reviews for each day

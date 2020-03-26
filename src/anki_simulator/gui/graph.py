@@ -30,14 +30,6 @@ except (ImportError, ModuleNotFoundError):
 parent_dir = os.path.abspath(os.path.dirname(__file__))
 
 
-def json_serial(obj):
-    """JSON serializer for objects not serializable by default json code"""
-
-    if isinstance(obj, (date)):
-        return obj.isoformat()
-    raise TypeError("Type %s not serializable" % type(obj))
-
-
 class Graph(AnkiWebView):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -67,9 +59,9 @@ class Graph(AnkiWebView):
         html += open(path, "r").read()
         self.setHtml(html)
 
-    def addDataSet(self, label, set):
+    def addDataSet(self, label, data_set):
         self._runJavascript(
-            "newDataSet('{}', '{}')".format(label, json.dumps(set, default=json_serial))
+            "newDataSet('{}', '{}')".format(label, json.dumps(data_set))
         )
 
     def clearLastDataset(self):
