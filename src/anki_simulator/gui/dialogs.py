@@ -76,6 +76,12 @@ class SimulatorDialog(QDialog):
             self.clear_last_simulation
         )
         self.dialog.aboutButton.clicked.connect(self.showAboutDialog)
+        self.dialog.useActualCardsCheckbox.toggled.connect(
+            self.toggledUseActualCardsCheckbox
+        )
+        self.dialog.simulateAdditionalNewCardsCheckbox.toggled.connect(
+            self.toggledGenerateAdditionalCardsCheckbox
+        )
         self.loadDeckConfigurations()
         self.numberOfSimulations = 0
         restoreGeom(self, "simulatorDialog")
@@ -188,12 +194,19 @@ class SimulatorDialog(QDialog):
         chanceRightYoung = float(self.dialog.percentCorrectYoungSpinbox.value()) / 100
         chanceRightMature = float(self.dialog.percentCorrectMatureSpinbox.value()) / 100
 
-        mockCardState = self.dialog.mockedCardStateRadio.isChecked()
-        mockedNewCards = self.dialog.mockedNewCardsSpinbox.value()
+        shouldUseActualCards = self.dialog.useActualCardsCheckbox.isChecked()
+        shouldGenerateAdditionalCards = (
+            self.dialog.simulateAdditionalNewCardsCheckbox.isChecked()
+        )
+        newCardsToGenerate = (
+            self.dialog.mockedNewCardsSpinbox.value()
+            if self.dialog.simulateAdditionalNewCardsCheckbox.isChecked()
+            else 0
+        )
 
         collection_simulator = self._collection_simulator(self.mw)
 
-        if not mockCardState:
+        if shouldUseActualCards:
             # Use actual card data for simulation
             includeOverdueCards = self.dialog.includeOverdueCardsCheckbox.isChecked()
             includeSuspendedNewCards = (
@@ -210,12 +223,15 @@ class SimulatorDialog(QDialog):
                 len(lapseSteps),
                 includeOverdueCards,
                 includeSuspendedNewCards,
+                newCardsToGenerate,
             )
-        else:
+        elif shouldGenerateAdditionalCards:
             # Simulate a deck with x new cards
             dateArray = collection_simulator.generate_for_new_count(
-                daysToSimulate, newCardsPerDay, mockedNewCards, startingEase
+                daysToSimulate, newCardsPerDay, newCardsToGenerate, startingEase
             )
+        else:
+            raise NotImplementedError
 
         sim = self._review_simulator(
             dateArray,
@@ -256,17 +272,18 @@ class SimulatorDialog(QDialog):
 
         self.numberOfSimulations += 1
         deck = self.mw.col.decks.get(self.deckChooser.selectedId())
-        mockCardState = self.dialog.mockedCardStateRadio.isChecked()
-        if mockCardState:
-            simulationTitle = self.dialog.simulationTitleTextfield.text()
-        else:
+
+        if self.dialog.useActualCardsCheckbox.isChecked():
             simulationTitle = "{} ({})".format(
                 self.dialog.simulationTitleTextfield.text(), deck["name"]
             )
+        else:
+            simulationTitle = self.dialog.simulationTitleTextfield.text()
         self.dialog.simulationGraph.addDataSet(simulationTitle, data)
         self.dialog.simulationTitleTextfield.setText(
             "Simulation {}".format(self.numberOfSimulations + 1)
         )
+
         self.dialog.clearLastSimulationButton.setEnabled(True)
 
     def _on_simulation_canceled(self):
@@ -297,6 +314,14 @@ class SimulatorDialog(QDialog):
             self.dialog.simulationTitleTextfield.setText(
                 "Simulation {}".format(self.numberOfSimulations + 1)
             )
+
+    def toggledUseActualCardsCheckbox(self):
+        if not self.dialog.useActualCardsCheckbox.isChecked():
+            self.dialog.simulateAdditionalNewCardsCheckbox.setChecked(True)
+
+    def toggledGenerateAdditionalCardsCheckbox(self):
+        if not self.dialog.simulateAdditionalNewCardsCheckbox.isChecked():
+            self.dialog.useActualCardsCheckbox.setChecked(True)
 
 
 class SimulatorThread(QThread):

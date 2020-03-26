@@ -26,7 +26,7 @@ except ImportError:
     import sys
     import os
 
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "_venddor"))
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "_vendor"))
 
 from PyQt5.QtWidgets import QAction
 
