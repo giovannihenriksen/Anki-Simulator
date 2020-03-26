@@ -69,8 +69,8 @@ class SimulatorDialog(QDialog):
         self.dialog.useActualCardsCheckbox.toggled.connect(
             self.toggledUseActualCardsCheckbox
         )
-        self.dialog.generateAdditionalNewCardsCheckbox.toggled.connect(
-            self.toggledGenerateAdditionalCardsCheckbox
+        self.dialog.simulateAdditionalNewCardsCheckbox.toggled.connect(
+            self.toggledSimulateAdditionalCardsCheckbox
         )
         self.loadDeckConfigurations()
         self.numberOfSimulations = 0
@@ -369,11 +369,11 @@ class SimulatorDialog(QDialog):
 
         shouldUseActualCards = self.dialog.useActualCardsCheckbox.isChecked()
         shouldGenerateAdditionalCards = (
-            self.dialog.generateAdditionalNewCardsCheckbox.isChecked()
+            self.dialog.simulateAdditionalNewCardsCheckbox.isChecked()
         )
         newCardsToGenerate = (
             self.dialog.mockedNewCardsSpinbox.value()
-            if self.dialog.generateAdditionalNewCardsCheckbox.isChecked()
+            if self.dialog.simulateAdditionalNewCardsCheckbox.isChecked()
             else 0
         )
 
@@ -487,10 +487,10 @@ class SimulatorDialog(QDialog):
 
     def toggledUseActualCardsCheckbox(self):
         if not self.dialog.useActualCardsCheckbox.isChecked():
-            self.dialog.generateAdditionalNewCardsCheckbox.setChecked(True)
+            self.dialog.simulateAdditionalNewCardsCheckbox.setChecked(True)
 
-    def toggledGenerateAdditionalCardsCheckbox(self):
-        if not self.dialog.generateAdditionalNewCardsCheckbox.isChecked():
+    def toggledSimulateAdditionalCardsCheckbox(self):
+        if not self.dialog.simulateAdditionalNewCardsCheckbox.isChecked():
             self.dialog.useActualCardsCheckbox.setChecked(True)
 
 

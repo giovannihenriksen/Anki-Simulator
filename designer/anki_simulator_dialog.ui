@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1106</width>
-    <height>658</height>
+    <height>770</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -596,9 +596,9 @@
        </widget>
       </item>
       <item row="5" column="1">
-       <widget class="QCheckBox" name="generateAdditionalNewCardsCheckbox">
+       <widget class="QCheckBox" name="simulateAdditionalNewCardsCheckbox">
         <property name="text">
-         <string>Generate (additional) new cards:</string>
+         <string>Simulate (additional) new cards:</string>
         </property>
        </widget>
       </item>
@@ -857,7 +857,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>generateAdditionalNewCardsCheckbox</sender>
+   <sender>simulateAdditionalNewCardsCheckbox</sender>
    <signal>toggled(bool)</signal>
    <receiver>mockedNewCardsSpinbox</receiver>
    <slot>setEnabled(bool)</slot>
