@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1166</width>
+    <width>1106</width>
     <height>658</height>
    </rect>
   </property>
@@ -464,6 +464,22 @@
         </property>
        </widget>
       </item>
+      <item row="0" column="4">
+       <spacer name="horizontalSpacer_4">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>5</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item row="2" column="8">
        <widget class="QLabel" name="percentCorrectLearningLabel">
         <property name="text">
@@ -491,39 +507,6 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QRadioButton" name="actualCardStateRadio">
-        <property name="text">
-         <string>Use actual cards in deck</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="4">
-       <spacer name="horizontalSpacer_4">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeType">
-         <enum>QSizePolicy::Fixed</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>5</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-      <item row="2" column="5">
-       <widget class="QLabel" name="percentCorrectUnseenLabel">
-        <property name="text">
-         <string>% correct unseen cards</string>
-        </property>
-       </widget>
-      </item>
       <item row="2" column="7">
        <spacer name="horizontalSpacer_3">
         <property name="orientation">
@@ -539,6 +522,13 @@
          </size>
         </property>
        </spacer>
+      </item>
+      <item row="2" column="5">
+       <widget class="QLabel" name="percentCorrectUnseenLabel">
+        <property name="text">
+         <string>% correct unseen cards</string>
+        </property>
+       </widget>
       </item>
       <item row="3" column="6">
        <widget class="QSpinBox" name="percentCorrectYoungSpinbox">
@@ -565,6 +555,60 @@
         </property>
         <property name="value">
          <number>90</number>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="8">
+       <widget class="QLabel" name="percentCorrectLapseLabel">
+        <property name="text">
+         <string>% correct lapse steps</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="9">
+       <widget class="QLineEdit" name="percentCorrectLapseTextfield">
+        <property name="minimumSize">
+         <size>
+          <width>70</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>90 90</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QCheckBox" name="includeSuspendedNewCardsCheckbox">
+        <property name="text">
+         <string>Include suspended new cards</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QCheckBox" name="includeOverdueCardsCheckbox">
+        <property name="text">
+         <string>Include overdue cards</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QCheckBox" name="generateAdditionalNewCardsCheckbox">
+        <property name="text">
+         <string>Generate (additional) new cards:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QCheckBox" name="useActualCardsCheckbox">
+        <property name="text">
+         <string>Use actual cards in deck</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -597,33 +641,6 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="8">
-       <widget class="QLabel" name="percentCorrectLapseLabel">
-        <property name="text">
-         <string>% correct lapse steps</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="9">
-       <widget class="QLineEdit" name="percentCorrectLapseTextfield">
-        <property name="minimumSize">
-         <size>
-          <width>70</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>90 90</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="1">
-       <widget class="QRadioButton" name="mockedCardStateRadio">
-        <property name="text">
-         <string>Generate new cards:</string>
-        </property>
-       </widget>
-      </item>
       <item row="5" column="6">
        <widget class="QSpinBox" name="percentCorrectMatureSpinbox">
         <property name="sizePolicy">
@@ -649,23 +666,6 @@
         </property>
         <property name="value">
          <number>90</number>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="2">
-       <widget class="QCheckBox" name="includeSuspendedNewCardsCheckbox">
-        <property name="text">
-         <string>Include suspended new cards</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="2">
-       <widget class="QCheckBox" name="includeOverdueCardsCheckbox">
-        <property name="text">
-         <string>Include overdue cards</string>
         </property>
        </widget>
       </item>
@@ -810,14 +810,10 @@
   <tabstop>graduatingIntervalSpinbox</tabstop>
   <tabstop>newLapseIntervalSpinbox</tabstop>
   <tabstop>maximumIntervalSpinbox</tabstop>
-  <tabstop>actualCardStateRadio</tabstop>
   <tabstop>includeSuspendedNewCardsCheckbox</tabstop>
   <tabstop>includeOverdueCardsCheckbox</tabstop>
-  <tabstop>mockedCardStateRadio</tabstop>
-  <tabstop>mockedNewCardsSpinbox</tabstop>
   <tabstop>percentCorrectUnseenSpinbox</tabstop>
   <tabstop>percentCorrectYoungSpinbox</tabstop>
-  <tabstop>percentCorrectMatureSpinbox</tabstop>
   <tabstop>percentCorrectLearningTextfield</tabstop>
   <tabstop>percentCorrectLapseTextfield</tabstop>
   <tabstop>simulationTitleTextfield</tabstop>
@@ -829,50 +825,50 @@
  <resources/>
  <connections>
   <connection>
-   <sender>actualCardStateRadio</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>mockedNewCardsSpinbox</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>317</x>
-     <y>253</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>390</x>
-     <y>283</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>mockedCardStateRadio</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>includeOverdueCardsCheckbox</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>280</x>
-     <y>283</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>419</x>
-     <y>248</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>mockedCardStateRadio</sender>
+   <sender>useActualCardsCheckbox</sender>
    <signal>toggled(bool)</signal>
    <receiver>includeSuspendedNewCardsCheckbox</receiver>
-   <slot>setDisabled(bool)</slot>
+   <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>243</x>
-     <y>296</y>
+     <x>248</x>
+     <y>290</y>
     </hint>
     <hint type="destinationlabel">
      <x>443</x>
      <y>227</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>useActualCardsCheckbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>includeOverdueCardsCheckbox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>263</x>
+     <y>227</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>474</x>
+     <y>261</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>generateAdditionalNewCardsCheckbox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mockedNewCardsSpinbox</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>263</x>
+     <y>295</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>413</x>
+     <y>295</y>
     </hint>
    </hints>
   </connection>
