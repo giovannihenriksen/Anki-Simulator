@@ -1,19 +1,15 @@
-# NOTE: This module has been modified to be packaged with Anki add-ons
-# The changes are Copyright (c) 2020 Aristotelis P. <https//glutanimate.com/>
-# and licensed under the same license as the original module
-
 import abc
 import collections
 import contextlib
 import sys
-from . import typing
+import typing
 import collections.abc as collections_abc
 import operator
 
 # These are used by Protocol implementation
 # We use internal typing helpers here, but this significantly reduces
 # code duplication. (Also this is only until Protocol is in typing.)
-from .typing import Generic, Callable, TypeVar, Tuple
+from typing import Generic, Callable, TypeVar, Tuple
 
 # After PEP 560, internal typing API was substantially reworked.
 # This is especially important for Protocol class which uses internal APIs
@@ -23,24 +19,24 @@ PEP_560 = sys.version_info[:3] >= (3, 7, 0)
 if PEP_560:
     GenericMeta = TypingMeta = type
 else:
-    from .typing import GenericMeta, TypingMeta
+    from typing import GenericMeta, TypingMeta
 OLD_GENERICS = False
 try:
-    from .typing import _type_vars, _next_in_mro, _type_check
+    from typing import _type_vars, _next_in_mro, _type_check
 except ImportError:
     OLD_GENERICS = True
 try:
-    from .typing import _subs_tree  # noqa
+    from typing import _subs_tree  # noqa
     SUBS_TREE = True
 except ImportError:
     SUBS_TREE = False
 try:
-    from .typing import _tp_cache
+    from typing import _tp_cache
 except ImportError:
     def _tp_cache(x):
         return x
 try:
-    from .typing import _TypingEllipsis, _TypingEmpty
+    from typing import _TypingEllipsis, _TypingEmpty
 except ImportError:
     class _TypingEllipsis:
         pass
@@ -92,7 +88,7 @@ else:
 
 # See https://github.com/python/typing/pull/439
 if hasattr(typing, '_geqv'):
-    from .typing import _geqv
+    from typing import _geqv
     _geqv_defined = True
 else:
     _geqv = None
@@ -1365,7 +1361,7 @@ elif HAVE_PROTOCOLS and not PEP_560:
 
 
 elif PEP_560:
-    from .typing import _type_check, _GenericAlias, _collect_type_vars  # noqa
+    from typing import _type_check, _GenericAlias, _collect_type_vars  # noqa
 
     class _ProtocolMeta(abc.ABCMeta):
         # This metaclass is a bit unfortunate and exists only because of the lack

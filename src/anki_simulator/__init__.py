@@ -22,6 +22,9 @@
 try:
     import typing  # noqa: F401
     import types  # noqa: F401
+
+    # Python 3.8+ test:
+    from typing import Literal, Final  # noqa: F401
 except ImportError:
     import sys
     import os
