@@ -87,6 +87,7 @@ class CollectionSimulator:
         number_of_lapse_steps: int,
         include_overdue_cards: bool,
         include_suspended_new_cards: bool,
+        number_of_additional_new_cards_to_generate: int,
     ) -> DATE_ARRAY_TYPE:
         # Before we start the simulation, we will collect all the cards from the database.
         crt = datetime.date.fromtimestamp(
@@ -182,8 +183,15 @@ class CollectionSimulator:
                 if cardDue < days_to_simulate:
                     dateArray[cardDue].append(review)
 
-        # Adding new cards
         if number_of_new_cards_per_day > 0:
+            if number_of_additional_new_cards_to_generate > 0:
+                additionalCardsToGenerate = min(
+                    number_of_additional_new_cards_to_generate,
+                    (number_of_new_cards_per_day * days_to_simulate) - len(newCards),
+                )
+                for cid in range(additionalCardsToGenerate):
+                    newCards.append(SimulatedCard(id=cid, ease=starting_ease,))
+            # Adding the collected new cards to our data structure
             deck = self._mw.col.decks.get(did)
             newCardsAlreadySeenToday = min(
                 deck["newToday"][1], number_of_new_cards_per_day
