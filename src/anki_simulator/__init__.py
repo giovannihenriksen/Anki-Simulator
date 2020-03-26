@@ -17,14 +17,25 @@
 # along with this program.  If not, see https://www.gnu.org/licenses/.
 
 
+# Allows us to use type annotations even on earlier Anki 2.1 releases
+# that do not package types and typing
+try:
+    import typing  # noqa: F401
+    import types  # noqa: F401
+except ImportError:
+    import sys
+    import os
+
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "_venddor"))
+
 from PyQt5.QtWidgets import QAction
 
 # import the main window object (mw) from aqt
 import aqt
 
+from .collection_simulator import CollectionSimulator
 from .gui.dialogs import SimulatorDialog
 from .review_simulator import ReviewSimulator
-from .collection_simulator import CollectionSimulator
 
 
 def open_simulator_dialog(deck_id=None):
