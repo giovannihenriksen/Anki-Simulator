@@ -18,7 +18,6 @@
 
 import gc
 import time
-from datetime import date
 
 from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QApplication, QDialog, QProgressDialog
@@ -27,7 +26,6 @@ from PyQt5.QtWidgets import QApplication, QDialog, QProgressDialog
 import aqt
 from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip
 
-from ..simulator import Simulator
 from .forms.anki21 import about_dialog, anki_simulator_dialog
 from .graph import Graph
 
@@ -48,9 +46,11 @@ def stepsAreValid(steps):
 
 
 class SimulatorDialog(QDialog):
-    def __init__(self, mw, deck_id=None):
+    def __init__(self, mw, review_simulator, collection_simulator, deck_id=None):
         QDialog.__init__(self, parent=mw)
         self.mw = mw
+        self._review_simulator = review_simulator
+        self._collection_simulator = collection_simulator
         self.dialog = anki_simulator_dialog.Ui_simulator_dialog()
         self.dialog.setupUi(self)
         self.setupGraph()
@@ -124,172 +124,6 @@ class SimulatorDialog(QDialog):
             listToUser([92] * numberOfLapseSteps)
         )
 
-    def loadCards(
-        self,
-        did,
-        days_to_simulate,
-        number_of_new_cards_per_day,
-        starting_ease,
-        number_of_learning_steps,
-        number_of_lapse_steps,
-        include_overdue_cards,
-        include_suspended_new_cards,
-    ):
-        # Before we start the simulation, we will collect all the cards from the database.
-        crt = date.fromtimestamp(
-            self.mw.col.crt
-        )  # Gets collection creation time. We need this to find out when a card is due.
-        today = date.today()
-        todayInteger = (today - crt).days
-        dateArray = []
-        while len(dateArray) < days_to_simulate:
-            dateArray.append([])
-        newCards = []
-        cids = self.mw.col.decks.cids(did, True)
-        for cid in cids:
-            card = self.mw.col.getCard(cid)
-            if card.type == 0:
-                # New card
-                if card.queue != -1 or include_suspended_new_cards:
-                    review = dict(
-                        id=card.id,
-                        ease=starting_ease,
-                        state="unseen",
-                        step=0,
-                        reviews=[],
-                        delay=0,
-                    )
-                    newCards.append(review)
-            elif card.type == 1:
-                # Learning card
-                if card.queue == -1:
-                    continue  # Card is suspended, so we will skip this card.
-                cardDue = card.due - todayInteger
-                if card.odue != 0:
-                    # Card is in a filtered deck, so we will use the 'odue' instead.
-                    cardDue = card.odue - todayInteger
-                if card.queue == 1:
-                    # This is a day learn card, so the due date is today.
-                    cardDue = 0
-                if cardDue < 0:
-                    if include_overdue_cards:
-                        cardDue = 0
-                    else:
-                        # Card is overdue. We will not include it in the simulation.
-                        continue
-                review = dict(
-                    id=card.id,
-                    ease=starting_ease,
-                    state="learning",
-                    step=max(number_of_learning_steps - (card.left % 10), -1),
-                    reviews=[],
-                    delay=0,
-                )
-                if cardDue < days_to_simulate:
-                    dateArray[cardDue].append(review)
-            elif card.type == 2:
-                # Young/mature card
-                if card.queue == -1:
-                    # Card is suspended, so we will skip this card.
-                    continue
-                cardDue = card.due - todayInteger
-                if card.odue != 0:
-                    # Card is in a filtered deck, so we will use the 'odue' instead.
-                    cardDue = card.odue - todayInteger
-                if cardDue < 0:
-                    if include_overdue_cards:
-                        cardDue = 0
-                    else:
-                        # Card is overdue. We will not include it in the simulation.
-                        continue
-                review = dict(
-                    id=card.id, ease=card.factor / 10, currentInterval=card.ivl, delay=0
-                )
-                if card.ivl >= 21:
-                    review["state"] = "mature"
-                else:
-                    review["state"] = "young"
-                review["reviews"] = []
-                if cardDue < days_to_simulate:
-                    dateArray[cardDue].append(review)
-            elif card.type == 3:
-                # Relearn card
-                if card.queue == -1:
-                    continue  # Relearning card is suspended, so we will skip it.
-                cardDue = card.due - todayInteger
-                if card.odue != 0:
-                    # Card is in a filtered deck, so we will use the 'odue' instead.
-                    cardDue = card.odue - todayInteger
-                if card.queue == 1:
-                    # This is a day relearn card, so the due date is today.
-                    cardDue = 0
-                if cardDue < 0:
-                    if include_overdue_cards:
-                        cardDue = 0
-                    else:
-                        # Card is overdue. We will not include it in the simulation.
-                        continue
-                review = dict(
-                    id=card.id,
-                    ease=card.factor / 10,
-                    state="relearn",
-                    currentInterval=card.ivl,
-                    step=max(number_of_lapse_steps - (card.left % 10), -1),
-                    reviews=[],
-                    delay=0,
-                )
-                if cardDue < days_to_simulate:
-                    dateArray[cardDue].append(review)
-
-        # Adding new cards
-        if number_of_new_cards_per_day > 0:
-            deck = self.mw.col.decks.get(did)
-            newCardsAlreadySeenToday = min(
-                deck["newToday"][1], number_of_new_cards_per_day
-            )
-            for index, card in enumerate(newCards):
-                dayToAddNewCardsTo = int(
-                    (index + newCardsAlreadySeenToday) / number_of_new_cards_per_day
-                )
-                if dayToAddNewCardsTo < days_to_simulate:
-                    dateArray[dayToAddNewCardsTo].append(card)
-        return dateArray
-
-    def createSimulatedDateArray(
-        self,
-        days_to_simulate,
-        number_of_new_cards_per_day,
-        new_cards_in_deck,
-        starting_ease,
-    ):
-        cards_left = new_cards_in_deck
-        dateArray = []
-        for day in range(days_to_simulate):
-            if not cards_left:
-                dateArray.append([])
-                continue
-
-            cards_for_the_day = []
-            left_today = min(number_of_new_cards_per_day, cards_left)
-
-            for cid in range(left_today):
-                cards_for_the_day.append(
-                    dict(
-                        id=cid,
-                        ease=starting_ease,
-                        state="unseen",
-                        step=0,
-                        reviews=[],
-                        delay=0,
-                    )
-                )
-
-            dateArray.append(cards_for_the_day)
-
-            cards_left -= left_today
-
-        return dateArray
-
     def simulate(self):
         daysToSimulate = int(self.dialog.daysToSimulateSpinbox.value())
         startingEase = int(self.dialog.startingEaseSpinBox.value())
@@ -348,6 +182,8 @@ class SimulatorDialog(QDialog):
         mockCardState = self.dialog.mockedCardStateRadio.isChecked()
         mockedNewCards = self.dialog.mockedNewCardsSpinbox.value()
 
+        collection_simulator = self._collection_simulator(self.mw)
+
         if not mockCardState:
             # Use actual card data for simulation
             includeOverdueCards = self.dialog.includeOverdueCardsCheckbox.isChecked()
@@ -356,7 +192,7 @@ class SimulatorDialog(QDialog):
             )
             # returns an array of days, each day is another array that contains all
             # the cards for that day:
-            dateArray = self.loadCards(
+            dateArray = collection_simulator.generate_for_deck(
                 self.deckChooser.selectedId(),
                 daysToSimulate,
                 int(self.dialog.newCardsPerDaySpinbox.value()),
@@ -368,11 +204,11 @@ class SimulatorDialog(QDialog):
             )
         else:
             # Simulate a deck with x new cards
-            dateArray = self.createSimulatedDateArray(
+            dateArray = collection_simulator.generate_for_new_count(
                 daysToSimulate, newCardsPerDay, mockedNewCards, startingEase
             )
 
-        sim = Simulator(
+        sim = self._review_simulator(
             dateArray,
             daysToSimulate,
             newCardsPerDay,
