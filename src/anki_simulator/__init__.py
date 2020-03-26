@@ -53,8 +53,8 @@ def on_deck_browser_will_show_options_menu(menu, deck_id):
 # Main menu
 
 action = QAction("Anki Simulator", aqt.mw)
-action.triggered.connect(open_simulator_dialog)
-aqt.mw.form.menuTools.addAction(action)
+action.triggered.connect(open_simulator_dialog)  # type: ignore
+aqt.mw.form.menuTools.addAction(action)  # type: ignore
 
 # Deck options context menu
 

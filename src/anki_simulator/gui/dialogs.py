@@ -18,22 +18,20 @@
 
 import gc
 import time
-from typing import TYPE_CHECKING, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union
 
 from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QApplication, QDialog, QProgressDialog
 
 # import the main window object (mw) from aqt
 import aqt
+from aqt.main import AnkiQt
 from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip
 
+from ..collection_simulator import CollectionSimulator
+from ..review_simulator import ReviewSimulator
 from .forms.anki21 import about_dialog, anki_simulator_dialog
 from .graph import Graph
-
-if TYPE_CHECKING:
-    from aqt.main import AnkiQt
-    from ..review_simulator import ReviewSimulator
-    from ..collection_simulator import CollectionSimulator
 
 
 def listToUser(l):
@@ -54,8 +52,8 @@ class SimulatorDialog(QDialog):
     def __init__(
         self,
         mw: "AnkiQt",
-        review_simulator: "ReviewSimulator",
-        collection_simulator: "CollectionSimulator",
+        review_simulator: Type[ReviewSimulator],
+        collection_simulator: Type[CollectionSimulator],
         deck_id: Optional[int] = None,
     ):
         QDialog.__init__(self, parent=mw)
@@ -313,7 +311,10 @@ class SimulatorThread(QThread):
         self._last_tick = time.time()
 
     def run(self):
+        # import timeit
+        # start = timeit.default_timer()
         data = self._simulator.simulate(self)
+        # print(timeit.default_timer() - start)
         if data is None:
             self.canceled.emit()
             return
