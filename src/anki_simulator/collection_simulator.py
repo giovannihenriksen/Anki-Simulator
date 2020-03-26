@@ -36,40 +36,7 @@ CARD_STATES_TYPE = Literal[
 ]
 
 
-# TODO: consider refactoring into dataclasses if performance allows for it
-
-
-class SimulatedReview:
-
-    __slots__ = (
-        "day",
-        "delay",
-        "wasState",
-        "correct",
-        "daysToAdd",
-        "becomes",
-        "newEase",
-    )
-
-    def __init__(
-        self,
-        *,
-        day: int,
-        delay: int,
-        wasState: CARD_STATES_TYPE,
-        correct: bool,
-        daysToAdd: int,
-        becomes: CARD_STATES_TYPE,
-        newEase: int
-    ):
-        self.day: int = day
-        self.delay: int = delay
-        self.wasState: CARD_STATES_TYPE = wasState
-        self.correct: bool = correct
-        self.daysToAdd: int = daysToAdd
-        self.becomes: CARD_STATES_TYPE = becomes
-        self.newEase: int = newEase
-
+# TODO: consider refactoring into dataclass if performance allows for it
 
 class SimulatedCard:
 
@@ -83,7 +50,6 @@ class SimulatedCard:
         ease: int = 250,
         state: CARD_STATES_TYPE = CARD_STATE_NEW,
         step: int = 0,
-        reviews: Optional[List[SimulatedReview]] = None,
         delay: int = 0
     ):
         self.id: int = id
@@ -91,7 +57,6 @@ class SimulatedCard:
         self.ease: int = ease
         self.state: CARD_STATES_TYPE = state
         self.step: int = step
-        self.reviews: List[SimulatedReview] = reviews or []
         self.delay: int = delay
 
     def copy(self) -> "SimulatedCard":
@@ -101,7 +66,6 @@ class SimulatedCard:
             ease=self.ease,
             state=self.state,
             step=self.step,
-            reviews=self.reviews,
             delay=self.delay,
         )
 

@@ -27,7 +27,6 @@ from .collection_simulator import (
     CARD_STATE_MATURE,
     CARD_STATE_RELEARN,
     DATE_ARRAY_TYPE,
-    SimulatedReview,
 )
 
 
@@ -142,17 +141,6 @@ class ReviewSimulator:
                             card.state = CARD_STATE_LEARNING
                             card.step = card.step + 1
                             daysToAdd = int(self.learningSteps[card.step] / 1440)
-                            card.reviews.append(
-                                SimulatedReview(
-                                    day=dayIndex,
-                                    delay=card.delay,
-                                    wasState=card.state,
-                                    correct=reviewCorrect,
-                                    daysToAdd=daysToAdd,
-                                    becomes=card.state,
-                                    newEase=card.ease,
-                                )
-                            )
                             if (dayIndex + daysToAdd) < self.daysToSimulate:
                                 self.dateArray[dayIndex + daysToAdd].append(card)
                         else:
@@ -163,17 +151,6 @@ class ReviewSimulator:
                             else:
                                 card.state = CARD_STATE_YOUNG
                             daysToAdd = card.ivl
-                            card.reviews.append(
-                                SimulatedReview(
-                                    day=dayIndex,
-                                    delay=card.delay,
-                                    wasState=card.state,
-                                    correct=reviewCorrect,
-                                    daysToAdd=daysToAdd,
-                                    becomes=card.state,
-                                    newEase=card.ease,
-                                )
-                            )
                             if (dayIndex + daysToAdd) < self.daysToSimulate:
                                 self.dateArray[dayIndex + daysToAdd].append(card)
                     elif card.state == CARD_STATE_RELEARN:
@@ -182,17 +159,6 @@ class ReviewSimulator:
                             card.state = CARD_STATE_RELEARN
                             card.step = card.step + 1
                             daysToAdd = int(self.lapseSteps[card.step] / 1440)
-                            card.reviews.append(
-                                SimulatedReview(
-                                    day=dayIndex,
-                                    delay=card.delay,
-                                    wasState=card.state,
-                                    correct=reviewCorrect,
-                                    daysToAdd=daysToAdd,
-                                    becomes=card.state,
-                                    newEase=card.ease,
-                                )
-                            )
                             if (dayIndex + daysToAdd) < self.daysToSimulate:
                                 self.dateArray[dayIndex + daysToAdd].append(card)
                         else:
@@ -202,17 +168,6 @@ class ReviewSimulator:
                             else:
                                 card.state = CARD_STATE_YOUNG
                             daysToAdd = card.ivl
-                            card.reviews.append(
-                                SimulatedReview(
-                                    day=dayIndex,
-                                    delay=card.delay,
-                                    wasState=card.state,
-                                    correct=reviewCorrect,
-                                    daysToAdd=daysToAdd,
-                                    becomes=card.state,
-                                    newEase=card.ease,
-                                )
-                            )
                             if (dayIndex + daysToAdd) < self.daysToSimulate:
                                 self.dateArray[dayIndex + daysToAdd].append(card)
                     elif card.state == CARD_STATE_YOUNG:
@@ -224,17 +179,6 @@ class ReviewSimulator:
                         if card.ivl >= 21:
                             card.state = CARD_STATE_MATURE
                         daysToAdd = card.ivl
-                        card.reviews.append(
-                            SimulatedReview(
-                                day=dayIndex,
-                                delay=card.delay,
-                                wasState=card.state,
-                                correct=reviewCorrect,
-                                daysToAdd=daysToAdd,
-                                becomes=card.state,
-                                newEase=card.ease,
-                            )
-                        )
                         if (dayIndex + daysToAdd) < self.daysToSimulate:
                             self.dateArray[dayIndex + daysToAdd].append(card)
                     elif card.state == CARD_STATE_MATURE:
@@ -244,17 +188,6 @@ class ReviewSimulator:
                         )
                         card.delay = 0
                         daysToAdd = card.ivl
-                        card.reviews.append(
-                            SimulatedReview(
-                                day=dayIndex,
-                                delay=card.delay,
-                                wasState=card.state,
-                                correct=reviewCorrect,
-                                daysToAdd=daysToAdd,
-                                becomes=card.state,
-                                newEase=card.ease,
-                            )
-                        )
                         if (dayIndex + daysToAdd) < self.daysToSimulate:
                             self.dateArray[dayIndex + daysToAdd].append(card)
                 else:
@@ -266,17 +199,6 @@ class ReviewSimulator:
                         card.state = CARD_STATE_LEARNING
                         card.step = 0
                         daysToAdd = int(self.learningSteps[0] / 1440)
-                        card.reviews.append(
-                            SimulatedReview(
-                                day=dayIndex,
-                                delay=card.delay,
-                                wasState=card.state,
-                                correct=reviewCorrect,
-                                daysToAdd=daysToAdd,
-                                becomes=card.state,
-                                newEase=card.ease,
-                            )
-                        )
                         if (dayIndex + daysToAdd) < self.daysToSimulate:
                             self.dateArray[dayIndex + daysToAdd].append(card)
                     elif card.state == CARD_STATE_RELEARN:
@@ -284,17 +206,6 @@ class ReviewSimulator:
                         card.state = CARD_STATE_RELEARN
                         card.step = 0
                         daysToAdd = int(self.lapseSteps[0] / 1440)
-                        card.reviews.append(
-                            SimulatedReview(
-                                day=dayIndex,
-                                delay=card.delay,
-                                wasState=card.state,
-                                correct=reviewCorrect,
-                                daysToAdd=daysToAdd,
-                                becomes=card.state,
-                                newEase=card.ease,
-                            )
-                        )
                         if (dayIndex + daysToAdd) < self.daysToSimulate:
                             self.dateArray[dayIndex + daysToAdd].append(card)
                     elif (
@@ -311,17 +222,6 @@ class ReviewSimulator:
                         )  # 1 is the minimum interval
                         card.ivl = newInterval
                         daysToAdd = int(self.lapseSteps[0] / 1440)
-                        card.reviews.append(
-                            SimulatedReview(
-                                day=dayIndex,
-                                delay=card.delay,
-                                wasState=card.state,
-                                correct=reviewCorrect,
-                                daysToAdd=daysToAdd,
-                                becomes=card.state,
-                                newEase=card.ease,
-                            )
-                        )
                         if (dayIndex + daysToAdd) < self.daysToSimulate:
                             self.dateArray[dayIndex + daysToAdd].append(card)
                 reviewNumber += 1
