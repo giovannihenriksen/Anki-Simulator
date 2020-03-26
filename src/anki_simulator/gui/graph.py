@@ -18,7 +18,7 @@
 
 import json
 import os
-from datetime import date
+from typing import Dict, List, Union
 
 from aqt.webview import AnkiWebView
 
@@ -28,14 +28,6 @@ except (ImportError, ModuleNotFoundError):
     theme_manager = None
 
 parent_dir = os.path.abspath(os.path.dirname(__file__))
-
-
-def json_serial(obj):
-    """JSON serializer for objects not serializable by default json code"""
-
-    if isinstance(obj, (date)):
-        return obj.isoformat()
-    raise TypeError("Type %s not serializable" % type(obj))
 
 
 class Graph(AnkiWebView):
@@ -67,9 +59,9 @@ class Graph(AnkiWebView):
         html += open(path, "r").read()
         self.setHtml(html)
 
-    def addDataSet(self, label, set):
+    def addDataSet(self, label: str, data_set: List[Dict[str, Union[str, int]]]):
         self._runJavascript(
-            "newDataSet('{}', '{}')".format(label, json.dumps(set, default=json_serial))
+            "newDataSet('{}', '{}')".format(label, json.dumps(data_set))
         )
 
     def clearLastDataset(self):
