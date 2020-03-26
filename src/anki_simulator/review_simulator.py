@@ -18,12 +18,23 @@
 
 from datetime import date, timedelta
 from random import randint
+from typing import Optional, List
+
+from .collection_simulator import (
+    CARD_STATE_NEW,
+    CARD_STATE_LEARNING,
+    CARD_STATE_YOUNG,
+    CARD_STATE_MATURE,
+    CARD_STATE_RELEARN,
+    DATE_ARRAY_TYPE,
+    SimulatedReview,
+)
 
 
 class ReviewSimulator:
     def __init__(
         self,
-        date_array,
+        date_array: DATE_ARRAY_TYPE,
         days_to_simulate,
         new_cards_per_day,
         interval_modifier,
@@ -39,7 +50,7 @@ class ReviewSimulator:
         chance_right_young,
         chance_right_mature,
     ):
-        self.dateArray = date_array
+        self.dateArray: DATE_ARRAY_TYPE = date_array
         self.daysToSimulate = days_to_simulate
         self.newCardsPerDay = new_cards_per_day
         self.intervalModifier = interval_modifier
@@ -57,21 +68,21 @@ class ReviewSimulator:
 
     def reviewCorrect(self, state, step):
         randNumber = randint(1, 100)
-        if state == "unseen" and randNumber <= 100 - self.chanceRightUnseen * 100:
+        if state == CARD_STATE_NEW and randNumber <= 100 - self.chanceRightUnseen * 100:
             return False  # card incorrect
         elif (
-            state == "learning"
+            state == CARD_STATE_LEARNING
             and randNumber <= 100 - self.percentagesCorrectForLearningSteps[step] * 100
         ):
             return False  # card incorrect
         elif (
-            state == "relearn"
+            state == CARD_STATE_RELEARN
             and randNumber <= 100 - self.percentagesCorrectForLapseSteps[step] * 100
         ):
             return False  # card incorrect
-        elif state == "young" and randNumber <= 100 - self.chanceRightYoung * 100:
+        elif state == CARD_STATE_YOUNG and randNumber <= 100 - self.chanceRightYoung * 100:
             return False  # card incorrect
-        elif state == "mature" and randNumber <= 100 - self.chanceRightMature * 100:
+        elif state == CARD_STATE_MATURE and randNumber <= 100 - self.chanceRightMature * 100:
             return False  # card incorrect
         return True  # card correct
 
@@ -87,7 +98,7 @@ class ReviewSimulator:
         )
         return int(min(constrainedGoodInterval, self.maxInterval))
 
-    def simulate(self, controller=None):
+    def simulate(self, controller=None) -> Optional[List[dict]]:
         dayIndex = 0
         while dayIndex < len(self.dateArray):
 
@@ -95,36 +106,33 @@ class ReviewSimulator:
                 controller.day_processed(dayIndex)
 
             reviewNumber = 0
-            idsDoneToday = []
-            removeList = (
-                []
-            )  # some cards may be postponed to the next day. We need to remove them from the
-            # current day.
+            idsDoneToday: List[int] = []
+            # some cards may be postponed to the next day. We need to remove them from
+            # the current day:
+            removeList = []
             while reviewNumber < len(self.dateArray[dayIndex]):
                 if controller and controller.do_cancel:
                     return None
 
                 originalReview = self.dateArray[dayIndex][reviewNumber].copy()
-                originalId = originalReview["id"]
-                originalEase = originalReview["ease"]
-                originalCurrentInterval = originalReview.get("currentInterval")
-                originalState = originalReview["state"]
-                originalStep = originalReview.get("step")
-                originalDelay = originalReview[
-                    "delay"
-                ]  # Delay is the number of days since the card was due,
-                # which is usually 0.
+                originalId = originalReview.id
+                originalEase = originalReview.ease
+                originalCurrentInterval = originalReview.ivl
+                originalState = originalReview.state
+                originalStep = originalReview.step
+                # Delay is the number of days since the card was due, which is usually 0.
+                originalDelay = originalReview.delay
                 newReview = self.dateArray[dayIndex][reviewNumber].copy()
 
                 # Postpone reviews > max reviews per day to the next day:
                 if (
-                    originalState == "young"
-                    or originalState == "mature"
+                    originalState == CARD_STATE_YOUNG
+                    or originalState == CARD_STATE_MATURE
                     and originalId not in idsDoneToday
                 ):
                     if len(idsDoneToday) + 1 > self.maxReviewsPerDay:
                         if (dayIndex + 1) < self.daysToSimulate:
-                            originalReview["delay"] += 1
+                            originalReview.delay += 1
                             self.dateArray[dayIndex + 1].append(newReview)
                         removeList.append(reviewNumber)
                         reviewNumber += 1
@@ -133,186 +141,193 @@ class ReviewSimulator:
 
                 reviewCorrect = self.reviewCorrect(originalState, originalStep)
                 if reviewCorrect:
-                    if originalState == "unseen" or originalState == "learning":
+                    if (
+                        originalState == CARD_STATE_NEW
+                        or originalState == CARD_STATE_LEARNING
+                    ):
                         if originalStep < len(self.learningSteps) - 1:
                             # Unseen/learning card was correct and will become/remain a learning card.
-                            newReview["state"] = "learning"
-                            newReview["step"] = originalStep + 1
-                            daysToAdd = int(
-                                self.learningSteps[newReview["step"]] / 1440
-                            )
-                            newReview["reviews"].append(
-                                dict(
+                            newReview.state = CARD_STATE_LEARNING
+                            newReview.step = originalStep + 1
+                            daysToAdd = int(self.learningSteps[newReview.step] / 1440)
+                            newReview.reviews.append(
+                                SimulatedReview(
                                     day=dayIndex,
                                     delay=originalDelay,
                                     wasState=originalState,
                                     correct=reviewCorrect,
                                     daysToAdd=daysToAdd,
-                                    becomes=newReview["state"],
-                                    newEase=newReview["ease"],
+                                    becomes=newReview.state,
+                                    newEase=newReview.ease,
                                 )
                             )
                             if (dayIndex + daysToAdd) < self.daysToSimulate:
                                 self.dateArray[dayIndex + daysToAdd].append(newReview)
                         else:
                             # Learning card was correct and will become a young/mature card.
-                            newReview["currentInterval"] = self.graduatingInterval
+                            newReview.ivl = self.graduatingInterval
                             if self.graduatingInterval >= 21:
-                                newReview["state"] = "mature"
+                                newReview.state = CARD_STATE_MATURE
                             else:
-                                newReview["state"] = "young"
-                            daysToAdd = newReview["currentInterval"]
-                            newReview["reviews"].append(
-                                dict(
+                                newReview.state = CARD_STATE_YOUNG
+                            daysToAdd = newReview.ivl
+                            newReview.reviews.append(
+                                SimulatedReview(
                                     day=dayIndex,
                                     delay=originalDelay,
                                     wasState=originalState,
                                     correct=reviewCorrect,
                                     daysToAdd=daysToAdd,
-                                    becomes=newReview["state"],
-                                    newEase=newReview["ease"],
+                                    becomes=newReview.state,
+                                    newEase=newReview.ease,
                                 )
                             )
                             if (dayIndex + daysToAdd) < self.daysToSimulate:
                                 self.dateArray[dayIndex + daysToAdd].append(newReview)
-                    elif originalState == "relearn":
+                    elif originalState == CARD_STATE_RELEARN:
                         if originalStep < len(self.lapseSteps) - 1:
                             # Relearn card was correct and will remain a relearn card.
-                            newReview["state"] = "relearn"
-                            newReview["step"] = originalStep + 1
-                            daysToAdd = int(self.lapseSteps[newReview["step"]] / 1440)
-                            newReview["reviews"].append(
-                                dict(
+                            newReview.state = CARD_STATE_RELEARN
+                            newReview.step = originalStep + 1
+                            daysToAdd = int(self.lapseSteps[newReview.step] / 1440)
+                            newReview.reviews.append(
+                                SimulatedReview(
                                     day=dayIndex,
                                     delay=originalDelay,
                                     wasState=originalState,
                                     correct=reviewCorrect,
                                     daysToAdd=daysToAdd,
-                                    becomes=newReview["state"],
-                                    newEase=newReview["ease"],
+                                    becomes=newReview.state,
+                                    newEase=newReview.ease,
                                 )
                             )
                             if (dayIndex + daysToAdd) < self.daysToSimulate:
                                 self.dateArray[dayIndex + daysToAdd].append(newReview)
                         else:
                             # Relearn card was correct and will become a young/mature card.
-                            if newReview["currentInterval"] >= 21:
-                                newReview["state"] = "mature"
+                            if newReview.ivl >= 21:
+                                newReview.state = CARD_STATE_MATURE
                             else:
-                                newReview["state"] = "young"
-                            daysToAdd = newReview["currentInterval"]
-                            newReview["reviews"].append(
-                                dict(
+                                newReview.state = CARD_STATE_YOUNG
+                            daysToAdd = newReview.ivl
+                            newReview.reviews.append(
+                                SimulatedReview(
                                     day=dayIndex,
                                     delay=originalDelay,
                                     wasState=originalState,
                                     correct=reviewCorrect,
                                     daysToAdd=daysToAdd,
-                                    becomes=newReview["state"],
-                                    newEase=newReview["ease"],
+                                    becomes=newReview.state,
+                                    newEase=newReview.ease,
                                 )
                             )
                             if (dayIndex + daysToAdd) < self.daysToSimulate:
                                 self.dateArray[dayIndex + daysToAdd].append(newReview)
-                    elif originalState == "young":
+                    elif originalState == CARD_STATE_YOUNG:
                         # Young card was correct and might become a mature card.
-                        newReview["currentInterval"] = self.nextRevInterval(
-                            originalCurrentInterval, originalDelay, newReview["ease"]
+                        newReview.ivl = self.nextRevInterval(
+                            originalCurrentInterval, originalDelay, newReview.ease
                         )
-                        newReview["delay"] = 0
-                        if newReview["currentInterval"] >= 21:
-                            newReview["state"] = "mature"
-                        daysToAdd = newReview["currentInterval"]
-                        newReview["reviews"].append(
-                            dict(
+                        newReview.delay = 0
+                        if newReview.ivl >= 21:
+                            newReview.state = CARD_STATE_MATURE
+                        daysToAdd = newReview.ivl
+                        newReview.reviews.append(
+                            SimulatedReview(
                                 day=dayIndex,
                                 delay=originalDelay,
                                 wasState=originalState,
                                 correct=reviewCorrect,
                                 daysToAdd=daysToAdd,
-                                becomes=newReview["state"],
-                                newEase=newReview["ease"],
+                                becomes=newReview.state,
+                                newEase=newReview.ease,
                             )
                         )
                         if (dayIndex + daysToAdd) < self.daysToSimulate:
                             self.dateArray[dayIndex + daysToAdd].append(newReview)
-                    elif originalState == "mature":
+                    elif originalState == CARD_STATE_MATURE:
                         # Mature card was correct and will remain a mature card.
-                        newReview["currentInterval"] = self.nextRevInterval(
-                            originalCurrentInterval, originalDelay, newReview["ease"]
+                        newReview.ivl = self.nextRevInterval(
+                            originalCurrentInterval, originalDelay, newReview.ease
                         )
-                        newReview["delay"] = 0
-                        daysToAdd = newReview["currentInterval"]
-                        newReview["reviews"].append(
-                            dict(
+                        newReview.delay = 0
+                        daysToAdd = newReview.ivl
+                        newReview.reviews.append(
+                            SimulatedReview(
                                 day=dayIndex,
                                 delay=originalDelay,
                                 wasState=originalState,
                                 correct=reviewCorrect,
                                 daysToAdd=daysToAdd,
-                                becomes=newReview["state"],
-                                newEase=newReview["ease"],
+                                becomes=newReview.state,
+                                newEase=newReview.ease,
                             )
                         )
                         if (dayIndex + daysToAdd) < self.daysToSimulate:
                             self.dateArray[dayIndex + daysToAdd].append(newReview)
                 else:
-                    if originalState == "unseen" or originalState == "learning":
-                        # Unseen/learning card was incorrect and will become/remain a learning card.
-                        newReview["state"] = "learning"
-                        newReview["step"] = 0
+                    if (
+                        originalState == CARD_STATE_NEW
+                        or originalState == CARD_STATE_LEARNING
+                    ):
+                        # New/learning card was incorrect and will become/remain a learning card.
+                        newReview.state = CARD_STATE_LEARNING
+                        newReview.step = 0
                         daysToAdd = int(self.learningSteps[0] / 1440)
-                        newReview["reviews"].append(
-                            dict(
+                        newReview.reviews.append(
+                            SimulatedReview(
                                 day=dayIndex,
                                 delay=originalDelay,
                                 wasState=originalState,
                                 correct=reviewCorrect,
                                 daysToAdd=daysToAdd,
-                                becomes=newReview["state"],
-                                newEase=newReview["ease"],
+                                becomes=newReview.state,
+                                newEase=newReview.ease,
                             )
                         )
                         if (dayIndex + daysToAdd) < self.daysToSimulate:
                             self.dateArray[dayIndex + daysToAdd].append(newReview)
-                    elif originalState == "relearn":
+                    elif originalState == CARD_STATE_RELEARN:
                         # Relearn card was incorrect and will remain a relearn card.
-                        newReview["state"] = "relearn"
-                        newReview["step"] = 0
+                        newReview.state = CARD_STATE_RELEARN
+                        newReview.step = 0
                         daysToAdd = int(self.lapseSteps[0] / 1440)
-                        newReview["reviews"].append(
-                            dict(
+                        newReview.reviews.append(
+                            SimulatedReview(
                                 day=dayIndex,
                                 delay=originalDelay,
                                 wasState=originalState,
                                 correct=reviewCorrect,
                                 daysToAdd=daysToAdd,
-                                becomes=newReview["state"],
-                                newEase=newReview["ease"],
+                                becomes=newReview.state,
+                                newEase=newReview.ease,
                             )
                         )
                         if (dayIndex + daysToAdd) < self.daysToSimulate:
                             self.dateArray[dayIndex + daysToAdd].append(newReview)
-                    elif originalState == "young" or originalState == "mature":
+                    elif (
+                        originalState == CARD_STATE_YOUNG
+                        or originalState == CARD_STATE_MATURE
+                    ):
                         # Young/mature card was incorrect and will become a relearn card.
-                        newReview["state"] = "relearn"
-                        newReview["step"] = 0
-                        newReview["delay"] = 0
-                        newReview["ease"] = max(originalEase - 20, 130)
+                        newReview.state = CARD_STATE_RELEARN
+                        newReview.step = 0
+                        newReview.delay = 0
+                        newReview.ease = max(originalEase - 20, 130)
                         newInterval = max(
                             int(originalCurrentInterval * self.newLapseInterval), 1
                         )  # 1 is the minimum interval
-                        newReview["currentInterval"] = newInterval
+                        newReview.ivl = newInterval
                         daysToAdd = int(self.lapseSteps[0] / 1440)
-                        newReview["reviews"].append(
-                            dict(
+                        newReview.reviews.append(
+                            SimulatedReview(
                                 day=dayIndex,
                                 delay=originalDelay,
                                 wasState=originalState,
                                 correct=reviewCorrect,
                                 daysToAdd=daysToAdd,
-                                becomes=newReview["state"],
-                                newEase=newReview["ease"],
+                                becomes=newReview.state,
+                                newEase=newReview.ease,
                             )
                         )
                         if (dayIndex + daysToAdd) < self.daysToSimulate:
