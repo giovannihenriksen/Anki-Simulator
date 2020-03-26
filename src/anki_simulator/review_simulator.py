@@ -20,7 +20,7 @@ from datetime import date, timedelta
 from random import randint
 
 
-class Simulator:
+class ReviewSimulator:
     def __init__(
         self,
         date_array,

@@ -23,9 +23,14 @@ from PyQt5.QtWidgets import QAction
 import aqt
 
 from .gui.dialogs import SimulatorDialog
+from .review_simulator import ReviewSimulator
+from .collection_simulator import CollectionSimulator
+
 
 def open_simulator_dialog(deck_id=None):
-    dialog = SimulatorDialog(aqt.mw, deck_id=deck_id)
+    dialog = SimulatorDialog(
+        aqt.mw, ReviewSimulator, CollectionSimulator, deck_id=deck_id
+    )
     dialog.show()
 
 
