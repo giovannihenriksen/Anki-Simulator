@@ -17,8 +17,7 @@
 # along with this program.  If not, see https://www.gnu.org/licenses/.
 
 import datetime
-
-from typing import Optional, List
+from typing import List
 
 try:
     from typing import Literal, Final
@@ -37,6 +36,7 @@ CARD_STATES_TYPE = Literal[
 
 
 # TODO: consider refactoring into dataclass if performance allows for it
+
 
 class SimulatedCard:
 
@@ -79,14 +79,14 @@ class CollectionSimulator:
 
     def generate_for_deck(
         self,
-        did,
-        days_to_simulate,
-        number_of_new_cards_per_day,
-        starting_ease,
-        number_of_learning_steps,
-        number_of_lapse_steps,
-        include_overdue_cards,
-        include_suspended_new_cards,
+        did: int,
+        days_to_simulate: int,
+        number_of_new_cards_per_day: int,
+        starting_ease: int,
+        number_of_learning_steps: int,
+        number_of_lapse_steps: int,
+        include_overdue_cards: bool,
+        include_suspended_new_cards: bool,
     ) -> DATE_ARRAY_TYPE:
         # Before we start the simulation, we will collect all the cards from the database.
         crt = datetime.date.fromtimestamp(
@@ -199,7 +199,10 @@ class CollectionSimulator:
 
     @staticmethod
     def generate_for_new_count(
-        days_to_simulate, number_of_new_cards_per_day, new_cards_in_deck, starting_ease,
+        days_to_simulate: int,
+        number_of_new_cards_per_day: int,
+        new_cards_in_deck: int,
+        starting_ease: int,
     ) -> DATE_ARRAY_TYPE:
         cards_left = new_cards_in_deck
         dateArray: DATE_ARRAY_TYPE = []

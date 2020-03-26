@@ -27,6 +27,7 @@ from .collection_simulator import (
     CARD_STATE_MATURE,
     CARD_STATE_RELEARN,
     DATE_ARRAY_TYPE,
+    CARD_STATES_TYPE,
 )
 
 
@@ -34,33 +35,33 @@ class ReviewSimulator:
     def __init__(
         self,
         date_array: DATE_ARRAY_TYPE,
-        days_to_simulate,
-        new_cards_per_day,
-        interval_modifier,
-        max_reviews_per_day,
-        learning_steps,
-        lapse_steps,
-        graduating_interval,
-        new_lapse_interval,
-        max_interval,
-        chance_right_unseen,
-        percentages_correct_for_learning_steps,
-        percentages_correct_for_lapse_steps,
-        chance_right_young,
-        chance_right_mature,
+        days_to_simulate: int,
+        new_cards_per_day: int,
+        interval_modifier: int,
+        max_reviews_per_day: int,
+        learning_steps: List[int],
+        lapse_steps: List[int],
+        graduating_interval: int,
+        new_lapse_interval: int,
+        max_interval: int,
+        chance_right_unseen: int,
+        percentages_correct_for_learning_steps: List[int],
+        percentages_correct_for_lapse_steps: List[int],
+        chance_right_young: int,
+        chance_right_mature: int,
     ):
         self.dateArray: DATE_ARRAY_TYPE = date_array
-        self.daysToSimulate = days_to_simulate
-        self.newCardsPerDay = new_cards_per_day
-        self.intervalModifier = interval_modifier
-        self.maxReviewsPerDay = max_reviews_per_day
-        self.learningSteps = learning_steps
-        self.lapseSteps = lapse_steps
-        self.graduatingInterval = graduating_interval
-        self.newLapseInterval = new_lapse_interval
-        self.maxInterval = max_interval
+        self.daysToSimulate: int = days_to_simulate
+        self.newCardsPerDay: int = new_cards_per_day
+        self.intervalModifier: int = interval_modifier
+        self.maxReviewsPerDay: int = max_reviews_per_day
+        self.learningSteps: List[int] = learning_steps
+        self.lapseSteps: List[int] = lapse_steps
+        self.graduatingInterval: int = graduating_interval
+        self.newLapseInterval: int = new_lapse_interval
+        self.maxInterval: int = max_interval
 
-        self._chance_right = {
+        self._chance_right: Dict[CARD_STATES_TYPE, Union[int, List[int]]] = {
             CARD_STATE_NEW: chance_right_unseen,
             CARD_STATE_LEARNING: percentages_correct_for_learning_steps,
             CARD_STATE_RELEARN: percentages_correct_for_lapse_steps,
@@ -68,7 +69,7 @@ class ReviewSimulator:
             CARD_STATE_MATURE: chance_right_mature,
         }
 
-    def reviewCorrect(self, state, step):
+    def reviewCorrect(self, state: CARD_STATES_TYPE, step: int) -> bool:
         randNumber = randint(1, 100)
 
         chance_right = self._chance_right[state]
@@ -78,7 +79,9 @@ class ReviewSimulator:
 
         return not (randNumber <= 100 - chance_right * 100)
 
-    def nextRevInterval(self, current_interval, delay, ease_factor):
+    def nextRevInterval(
+        self, current_interval: int, delay: int, ease_factor: int
+    ) -> int:
         baseHardInterval = (current_interval + delay // 4) * 1.2
         constrainedHardInterval = max(
             baseHardInterval * self.intervalModifier, current_interval + 1

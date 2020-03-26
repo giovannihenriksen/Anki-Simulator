@@ -18,6 +18,7 @@
 
 import gc
 import time
+from typing import TYPE_CHECKING, Dict, List, Optional, Union
 
 from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
 from PyQt5.QtWidgets import QApplication, QDialog, QProgressDialog
@@ -29,12 +30,17 @@ from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip
 from .forms.anki21 import about_dialog, anki_simulator_dialog
 from .graph import Graph
 
+if TYPE_CHECKING:
+    from aqt.main import AnkiQt
+    from ..review_simulator import ReviewSimulator
+    from ..collection_simulator import CollectionSimulator
+
 
 def listToUser(l):
     return " ".join([str(x) for x in l])
 
 
-def stepsAreValid(steps):
+def stepsAreValid(steps: List[str]):
     for step in steps:
         if not step.isdecimal():
             return False
@@ -44,9 +50,14 @@ def stepsAreValid(steps):
         return True
 
 
-
 class SimulatorDialog(QDialog):
-    def __init__(self, mw, review_simulator, collection_simulator, deck_id=None):
+    def __init__(
+        self,
+        mw: "AnkiQt",
+        review_simulator: "ReviewSimulator",
+        collection_simulator: "CollectionSimulator",
+        deck_id: Optional[int] = None,
+    ):
         QDialog.__init__(self, parent=mw)
         self.mw = mw
         self._review_simulator = review_simulator
@@ -242,9 +253,9 @@ class SimulatorDialog(QDialog):
         self._thread.start()
         self._progress.exec_()
 
-    def _on_simulation_done(self, data):
+    def _on_simulation_done(self, data: List[Dict[str, Union[str, int]]]):
         self.__gc_qobjects()
-        
+
         self.numberOfSimulations += 1
         deck = self.mw.col.decks.get(self.deckChooser.selectedId())
         mockCardState = self.dialog.mockedCardStateRadio.isChecked()
@@ -262,7 +273,7 @@ class SimulatorDialog(QDialog):
 
     def _on_simulation_canceled(self):
         self.__gc_qobjects()
-        
+
         if self._progress:
             # seems to be necessary to prevent progress dialog from being stuck:
             QApplication.instance().processEvents(QEventLoop.ExcludeUserInputEvents)
@@ -295,7 +306,7 @@ class SimulatorThread(QThread):
     canceled = pyqtSignal()
     tick = pyqtSignal(int)
 
-    def __init__(self, simulator, *args, **kwargs):
+    def __init__(self, simulator: "ReviewSimulator", *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._simulator = simulator
         self.do_cancel = False
@@ -310,11 +321,11 @@ class SimulatorThread(QThread):
 
     def cancel(self):
         self.do_cancel = True
-    
+
     def day_processed(self, day: int):
         now = time.time()
         if (now - self._last_tick) >= 0.1:
-            self.tick.emit(day)
+            self.tick.emit(day)  # type: ignore
             self._last_tick = now
 
 

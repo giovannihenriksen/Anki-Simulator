@@ -18,7 +18,7 @@
 
 import json
 import os
-from datetime import date
+from typing import Dict, List, Union
 
 from aqt.webview import AnkiWebView
 
@@ -59,7 +59,7 @@ class Graph(AnkiWebView):
         html += open(path, "r").read()
         self.setHtml(html)
 
-    def addDataSet(self, label, data_set):
+    def addDataSet(self, label: str, data_set: List[Dict[str, Union[str, int]]]):
         self._runJavascript(
             "newDataSet('{}', '{}')".format(label, json.dumps(data_set))
         )
