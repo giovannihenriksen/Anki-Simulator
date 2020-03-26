@@ -59,31 +59,24 @@ class ReviewSimulator:
         self.graduatingInterval = graduating_interval
         self.newLapseInterval = new_lapse_interval
         self.maxInterval = max_interval
-        self.chanceRightUnseen = chance_right_unseen
-        self.percentagesCorrectForLearningSteps = percentages_correct_for_learning_steps
-        self.percentagesCorrectForLapseSteps = percentages_correct_for_lapse_steps
-        self.chanceRightYoung = chance_right_young
-        self.chanceRightMature = chance_right_mature
+
+        self._chance_right = {
+            CARD_STATE_NEW: chance_right_unseen,
+            CARD_STATE_LEARNING: percentages_correct_for_learning_steps,
+            CARD_STATE_RELEARN: percentages_correct_for_lapse_steps,
+            CARD_STATE_YOUNG: chance_right_young,
+            CARD_STATE_MATURE: chance_right_mature,
+        }
 
     def reviewCorrect(self, state, step):
         randNumber = randint(1, 100)
-        if state == CARD_STATE_NEW and randNumber <= 100 - self.chanceRightUnseen * 100:
-            return False  # card incorrect
-        elif (
-            state == CARD_STATE_LEARNING
-            and randNumber <= 100 - self.percentagesCorrectForLearningSteps[step] * 100
-        ):
-            return False  # card incorrect
-        elif (
-            state == CARD_STATE_RELEARN
-            and randNumber <= 100 - self.percentagesCorrectForLapseSteps[step] * 100
-        ):
-            return False  # card incorrect
-        elif state == CARD_STATE_YOUNG and randNumber <= 100 - self.chanceRightYoung * 100:
-            return False  # card incorrect
-        elif state == CARD_STATE_MATURE and randNumber <= 100 - self.chanceRightMature * 100:
-            return False  # card incorrect
-        return True  # card correct
+
+        chance_right = self._chance_right[state]
+
+        if isinstance(chance_right, (list, tuple)):
+            chance_right = chance_right[step]
+
+        return not (randNumber <= 100 - chance_right * 100)
 
     def nextRevInterval(self, current_interval, delay, ease_factor):
         baseHardInterval = (current_interval + delay // 4) * 1.2
@@ -131,6 +124,7 @@ class ReviewSimulator:
                     idsDoneToday.append(card.id)
 
                 reviewCorrect = self.reviewCorrect(card.state, card.step)
+
                 if reviewCorrect:
                     if (
                         card.state == CARD_STATE_NEW
@@ -172,9 +166,7 @@ class ReviewSimulator:
                                 self.dateArray[dayIndex + daysToAdd].append(card)
                     elif card.state == CARD_STATE_YOUNG:
                         # Young card was correct and might become a mature card.
-                        card.ivl = self.nextRevInterval(
-                            card.ivl, card.delay, card.ease
-                        )
+                        card.ivl = self.nextRevInterval(card.ivl, card.delay, card.ease)
                         card.delay = 0
                         if card.ivl >= 21:
                             card.state = CARD_STATE_MATURE
@@ -183,9 +175,7 @@ class ReviewSimulator:
                             self.dateArray[dayIndex + daysToAdd].append(card)
                     elif card.state == CARD_STATE_MATURE:
                         # Mature card was correct and will remain a mature card.
-                        card.ivl = self.nextRevInterval(
-                            card.ivl, card.delay, card.ease
-                        )
+                        card.ivl = self.nextRevInterval(card.ivl, card.delay, card.ease)
                         card.delay = 0
                         daysToAdd = card.ivl
                         if (dayIndex + daysToAdd) < self.daysToSimulate:
