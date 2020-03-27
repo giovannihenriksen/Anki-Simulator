@@ -115,10 +115,10 @@ class SimulatorDialog(QDialog):
         startingEase = conf["new"]["initialFactor"] / 10.0
         intervalModifier = conf["rev"]["ivlFct"] * 100
         maxRevPerDay = conf["rev"]["perDay"]
-        numberOfLearningSteps = len(conf["new"]["delays"])
-        learningSteps = listToUser(conf["new"]["delays"])
-        numberOfLapseSteps = len(conf["lapse"]["delays"])
-        lapseSteps = listToUser(conf["lapse"]["delays"])
+        learningSteps = conf["new"]["delays"]
+        numberOfLearningSteps = len(learningSteps)
+        lapseSteps = conf["lapse"]["delays"]
+        numberOfLapseSteps = len(lapseSteps)
         graduatingInterval = conf["new"]["ints"][0]
         newLapseInterval = conf["lapse"]["mult"] * 100
         maxInterval = conf["rev"]["maxIvl"]
@@ -127,16 +127,100 @@ class SimulatorDialog(QDialog):
         self.dialog.startingEaseSpinBox.setProperty("value", startingEase)
         self.dialog.intervalModifierSpinbox.setProperty("value", intervalModifier)
         self.dialog.maximumReviewsPerDaySpinbox.setProperty("value", maxRevPerDay)
-        self.dialog.learningStepsTextfield.setText(learningSteps)
-        self.dialog.lapseStepsTextfield.setText(lapseSteps)
+        self.dialog.learningStepsTextfield.setText(listToUser(learningSteps))
+        self.dialog.lapseStepsTextfield.setText(listToUser(lapseSteps))
         self.dialog.graduatingIntervalSpinbox.setProperty("value", graduatingInterval)
         self.dialog.newLapseIntervalSpinbox.setProperty("value", newLapseInterval)
         self.dialog.maximumIntervalSpinbox.setProperty("value", maxInterval)
+
+        # Collecting deck stats
+        deckChildren = [
+            childDeck[1] for childDeck in self.mw.col.decks.children(deckID)
+        ]
+        deckChildren.append(deckID)
+        childrenDIDs = "(" + ", ".join(str(did) for did in deckChildren) + ")"
+        idCutOff = (self.mw.col.sched.dayCutoff - 30 * 86400) * 1000
+        stats = self.mw.col.db.all(
+            f"""\
+            WITH logs AS (
+                SELECT
+                    ease,
+                    lastIvl,
+                    type AS oldType
+                FROM revlog WHERE cid in (select id from cards where did in {childrenDIDs}) AND id > {idCutOff}
+            )
+            SELECT
+                (CASE
+                    when oldType = 0 THEN 0
+                    when oldType = 2 THEN 1
+                    when oldType = 1 AND lastIvl < 21 THEN 2
+                    when oldType = 1 THEN 3
+                    when oldType = 3 THEN 4
+                    ELSE 5
+                END) AS type,
+                (CASE
+                    when lastIvl < 0 THEN lastIvl / -60
+                END) as lastIvlCorrected,
+                SUM(ease = 1) as incorrectCount,
+                SUM(ease = 2) AS hardCount,
+                SUM(ease = 3) AS correctCount,
+                SUM(ease = 4) AS easyCount,
+                COUNT(*) AS totalCount
+            FROM logs
+            GROUP BY type, lastIvlCorrected
+            ORDER BY type, lastIvlCorrected"""
+        )
+        print(stats)
+        learningStepsPercentages = {}
+        lapseStepsPercentages = {}
+        percentageCorrectYoungCards = 90
+        percentageCorrectMatureCards = 90
+
+        for (
+            type,
+            lastIvl,
+            incorrectCount,
+            hardCount,
+            correctCount,
+            easyCount,
+            totalCount,
+        ) in stats:
+            if type == 0:
+                learningStepsPercentages[lastIvl] = int(
+                    ((correctCount + easyCount) / totalCount) * 100
+                )
+            elif type == 1:
+                lapseStepsPercentages[lastIvl] = int(
+                    ((correctCount + easyCount) / totalCount) * 100
+                )
+            elif type == 2:
+                percentageCorrectYoungCards = int(
+                    ((correctCount + easyCount) / totalCount) * 100
+                )
+            elif type == 3:
+                percentageCorrectMatureCards = int(
+                    ((correctCount + easyCount) / totalCount) * 100
+                )
+            else:
+                break
         self.dialog.percentCorrectLearningTextfield.setText(
-            listToUser([92] * numberOfLearningSteps)
+            listToUser(
+                [
+                    learningStepsPercentages.get(learningStep, 92)
+                    for learningStep in learningSteps
+                ]
+            )
         )
         self.dialog.percentCorrectLapseTextfield.setText(
-            listToUser([92] * numberOfLapseSteps)
+            listToUser(
+                [lapseStepsPercentages.get(lapseStep, 92) for lapseStep in lapseSteps]
+            )
+        )
+        self.dialog.percentCorrectYoungSpinbox.setProperty(
+            "value", percentageCorrectYoungCards
+        )
+        self.dialog.percentCorrectMatureSpinbox.setProperty(
+            "value", percentageCorrectMatureCards
         )
 
     def simulate(self):
