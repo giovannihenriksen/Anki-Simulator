@@ -44,7 +44,6 @@ class ReviewSimulator:
         graduating_interval: int,
         new_lapse_interval: int,
         max_interval: int,
-        chance_right_unseen: int,
         percentages_correct_for_learning_steps: List[int],
         percentages_correct_for_lapse_steps: List[int],
         chance_right_young: int,
@@ -62,7 +61,7 @@ class ReviewSimulator:
         self.maxInterval: int = max_interval
 
         self._chance_right: Dict[CARD_STATES_TYPE, Union[int, List[int]]] = {
-            CARD_STATE_NEW: chance_right_unseen,
+            CARD_STATE_NEW: percentages_correct_for_learning_steps,
             CARD_STATE_LEARNING: percentages_correct_for_learning_steps,
             CARD_STATE_RELEARN: percentages_correct_for_lapse_steps,
             CARD_STATE_YOUNG: chance_right_young,
@@ -71,12 +70,9 @@ class ReviewSimulator:
 
     def reviewCorrect(self, state: CARD_STATES_TYPE, step: int) -> bool:
         randNumber = randint(1, 100)
-
         chance_right = self._chance_right[state]
-
         if isinstance(chance_right, (list, tuple)):
             chance_right = chance_right[step]
-
         return not (randNumber <= 100 - chance_right * 100)
 
     def nextRevInterval(

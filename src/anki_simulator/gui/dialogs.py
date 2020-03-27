@@ -170,7 +170,6 @@ class SimulatorDialog(QDialog):
             GROUP BY type, lastIvlCorrected
             ORDER BY type, lastIvlCorrected"""
         )
-        print(stats)
         learningStepsPercentages = {}
         lapseStepsPercentages = {}
         percentageCorrectYoungCards = 90
@@ -244,7 +243,6 @@ class SimulatorDialog(QDialog):
         graduatingInterval = int(self.dialog.graduatingIntervalSpinbox.value())
         newLapseInterval = float(self.dialog.newLapseIntervalSpinbox.value()) / 100
         maxInterval = int(self.dialog.maximumIntervalSpinbox.value())
-        chanceRightUnseen = float(self.dialog.percentCorrectUnseenSpinbox.value()) / 100
         if not stepsAreValid(
             self.dialog.percentCorrectLearningTextfield.text().split()
         ):
@@ -328,7 +326,6 @@ class SimulatorDialog(QDialog):
             graduatingInterval,
             newLapseInterval,
             maxInterval,
-            chanceRightUnseen,
             percentagesCorrectForLearningSteps,
             percentagesCorrectForLapseSteps,
             chanceRightYoung,
