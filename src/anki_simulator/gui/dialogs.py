@@ -139,10 +139,10 @@ class SimulatorDialog(QDialog):
         ]
         deckChildren.append(deckID)
         childrenDIDs = "(" + ", ".join(str(did) for did in deckChildren) + ")"
-        idCutOff = (self.mw.col.sched.dayCutoff - 30 * 86400) * 1000
+        config = self.mw.addonManager.getConfig(__name__)
+        idCutOff = (self.mw.col.sched.dayCutoff - config['retention_cutoff_days'] * 86400) * 1000
         schedVersion = self.mw.col.schedVer()
         schedulerEaseCorrection = 1 if schedVersion == 1 else 0
-        print(childrenDIDs, idCutOff)
         stats = self.mw.col.db.all(
             f"""\
             WITH logs AS (
