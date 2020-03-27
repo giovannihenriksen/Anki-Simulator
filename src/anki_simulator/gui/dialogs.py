@@ -140,36 +140,44 @@ class SimulatorDialog(QDialog):
         deckChildren.append(deckID)
         childrenDIDs = "(" + ", ".join(str(did) for did in deckChildren) + ")"
         idCutOff = (self.mw.col.sched.dayCutoff - 30 * 86400) * 1000
+        schedVersion = self.mw.col.schedVer()
+        schedulerEaseCorrection = 1 if schedVersion == 1 else 0
         stats = self.mw.col.db.all(
             f"""\
-            WITH logs AS (
-                SELECT
-                    ease,
-                    lastIvl,
-                    type AS oldType
-                FROM revlog WHERE cid in (select id from cards where did in {childrenDIDs}) AND id > {idCutOff}
-            )
-            SELECT
-                (CASE
-                    when oldType = 0 THEN 0
-                    when oldType = 2 THEN 1
-                    when oldType = 1 AND lastIvl < 21 THEN 2
-                    when oldType = 1 THEN 3
-                    when oldType = 3 THEN 4
-                    ELSE 5
-                END) AS type,
-                (CASE
-                    when lastIvl < 0 THEN lastIvl / -60
-                END) as lastIvlCorrected,
-                SUM(ease = 1) as incorrectCount,
-                SUM(ease = 2) AS hardCount,
-                SUM(ease = 3) AS correctCount,
-                SUM(ease = 4) AS easyCount,
-                COUNT(*) AS totalCount
-            FROM logs
-            GROUP BY type, lastIvlCorrected
-            ORDER BY type, lastIvlCorrected"""
-        )
+                    WITH logs AS (
+                        SELECT
+                            (CASE
+                                when type = 0 THEN 0
+                                when type = 2 THEN 1
+                                when type = 1 AND lastIvl < 21 THEN 2
+                                when type = 1 THEN 3
+                                when type = 3 THEN 4
+                                ELSE 5
+                            END) AS type,
+                            (CASE
+                                when type = 0 AND ease = 2 THEN {2+schedulerEaseCorrection}
+                                when type = 0 AND ease = 3 THEN {3+schedulerEaseCorrection}
+                                when type = 1 AND ease = 2 THEN {2+schedulerEaseCorrection}
+                                when type = 1 AND ease = 3 THEN {3+schedulerEaseCorrection}
+                                ELSE ease
+                            END) AS ease,
+                            lastIvl
+                        FROM revlog WHERE cid in (select id from cards where did in {childrenDIDs}) AND id > {idCutOff}
+                    )
+                    SELECT
+                        type,
+                        (CASE
+                            when lastIvl < 0 THEN lastIvl / -60
+                        END) as lastIvlCorrected,
+                        SUM(ease = 1) as incorrectCount,
+                        SUM(ease = 2) AS hardCount,
+                        SUM(ease = 3) AS correctCount,
+                        SUM(ease = 4) AS easyCount,
+                        COUNT(*) AS totalCount
+                    FROM logs
+                    GROUP BY type, lastIvlCorrected
+                    ORDER BY type, lastIvlCorrected"""
+        )  # type 0 = learn; type 1 = relearn; type 2 = young; type 3 = mature; type 4 = cram; type 5 = reschedule
         learningStepsPercentages = {}
         lapseStepsPercentages = {}
         percentageCorrectYoungCards = 90
