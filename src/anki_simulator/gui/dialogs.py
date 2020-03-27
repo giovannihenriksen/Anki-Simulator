@@ -142,10 +142,19 @@ class SimulatorDialog(QDialog):
         idCutOff = (self.mw.col.sched.dayCutoff - 30 * 86400) * 1000
         schedVersion = self.mw.col.schedVer()
         schedulerEaseCorrection = 1 if schedVersion == 1 else 0
+        print(childrenDIDs, idCutOff)
         stats = self.mw.col.db.all(
             f"""\
-                    WITH logs AS (
+            WITH logs AS (
                         SELECT
+                            type,
+                            (CASE
+                                when type = 0 AND ease = 2 THEN {2+schedulerEaseCorrection}
+                                when type = 0 AND ease = 3 THEN {3+schedulerEaseCorrection}
+                                when type = 2 AND ease = 2 THEN {2+schedulerEaseCorrection}
+                                when type = 2 AND ease = 3 THEN {3+schedulerEaseCorrection}
+                                ELSE ease
+                            END) AS adjustedEase,
                             (CASE
                                 when type = 0 THEN 0
                                 when type = 2 THEN 1
@@ -153,30 +162,23 @@ class SimulatorDialog(QDialog):
                                 when type = 1 THEN 3
                                 when type = 3 THEN 4
                                 ELSE 5
-                            END) AS type,
-                            (CASE
-                                when type = 0 AND ease = 2 THEN {2+schedulerEaseCorrection}
-                                when type = 0 AND ease = 3 THEN {3+schedulerEaseCorrection}
-                                when type = 1 AND ease = 2 THEN {2+schedulerEaseCorrection}
-                                when type = 1 AND ease = 3 THEN {3+schedulerEaseCorrection}
-                                ELSE ease
-                            END) AS ease,
+                            END) AS adjustedType,
                             lastIvl
                         FROM revlog WHERE cid in (select id from cards where did in {childrenDIDs}) AND id > {idCutOff}
                     )
                     SELECT
-                        type,
+                        adjustedType,
                         (CASE
                             when lastIvl < 0 THEN lastIvl / -60
-                        END) as lastIvlCorrected,
-                        SUM(ease = 1) as incorrectCount,
-                        SUM(ease = 2) AS hardCount,
-                        SUM(ease = 3) AS correctCount,
-                        SUM(ease = 4) AS easyCount,
+                        END) as adjustedLastIvl,
+                        SUM(adjustedEase = 1) as incorrectCount,
+                        SUM(adjustedEase = 2) AS hardCount,
+                        SUM(adjustedEase = 3) AS correctCount,
+                        SUM(adjustedEase = 4) AS easyCount,
                         COUNT(*) AS totalCount
                     FROM logs
-                    GROUP BY type, lastIvlCorrected
-                    ORDER BY type, lastIvlCorrected"""
+                    GROUP BY adjustedType, adjustedLastIvl
+                    ORDER BY adjustedType, adjustedLastIvl"""
         )  # type 0 = learn; type 1 = relearn; type 2 = young; type 3 = mature; type 4 = cram; type 5 = reschedule
         learningStepsPercentages = {}
         lapseStepsPercentages = {}
