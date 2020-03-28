@@ -48,6 +48,14 @@ def stepsAreValid(steps: List[str]):
         return True
 
 
+def downsampleList(list: list, threshold: int):
+    if len(list) <= threshold:
+        return list
+    else:
+        step = (len(list) - 1) / (threshold - 1)
+        return [list[round(index * step)] for index in range(threshold)]
+
+
 class SimulatorDialog(QDialog):
     def __init__(
         self,
@@ -82,11 +90,13 @@ class SimulatorDialog(QDialog):
         self.dialog.simulateAdditionalNewCardsCheckbox.toggled.connect(
             self.toggledGenerateAdditionalCardsCheckbox
         )
+        self.config = self.mw.addonManager.getConfig(__name__)
         self.loadDeckConfigurations()
         self.numberOfSimulations = 0
         restoreGeom(self, "simulatorDialog")
         self._thread = None
         self._progress = None
+
 
     def showAboutDialog(self):
         aboutDialog = AboutDialog(self)
@@ -139,8 +149,9 @@ class SimulatorDialog(QDialog):
         ]
         deckChildren.append(deckID)
         childrenDIDs = "(" + ", ".join(str(did) for did in deckChildren) + ")"
-        config = self.mw.addonManager.getConfig(__name__)
-        idCutOff = (self.mw.col.sched.dayCutoff - config['retention_cutoff_days'] * 86400) * 1000
+        idCutOff = (
+            self.mw.col.sched.dayCutoff - self.config["retention_cutoff_days"] * 86400
+        ) * 1000
         schedVersion = self.mw.col.schedVer()
         schedulerEaseCorrection = 1 if schedVersion == 1 else 0
         stats = self.mw.col.db.all(
@@ -149,10 +160,10 @@ class SimulatorDialog(QDialog):
                         SELECT
                             type,
                             (CASE
-                                when type = 0 AND ease = 2 THEN {2+schedulerEaseCorrection}
-                                when type = 0 AND ease = 3 THEN {3+schedulerEaseCorrection}
-                                when type = 2 AND ease = 2 THEN {2+schedulerEaseCorrection}
-                                when type = 2 AND ease = 3 THEN {3+schedulerEaseCorrection}
+                                when type = 0 AND ease = 2 THEN {2 + schedulerEaseCorrection}
+                                when type = 0 AND ease = 3 THEN {3 + schedulerEaseCorrection}
+                                when type = 2 AND ease = 2 THEN {2 + schedulerEaseCorrection}
+                                when type = 2 AND ease = 3 THEN {3 + schedulerEaseCorrection}
                                 ELSE ease
                             END) AS adjustedEase,
                             (CASE
@@ -370,7 +381,10 @@ class SimulatorDialog(QDialog):
             )
         else:
             simulationTitle = self.dialog.simulationTitleTextfield.text()
-        self.dialog.simulationGraph.addDataSet(simulationTitle, data)
+        self.dialog.simulationGraph.addDataSet(
+            simulationTitle,
+            downsampleList(data, self.config["max_number_of_data_points"]),
+        )
         self.dialog.simulationTitleTextfield.setText(
             "Simulation {}".format(self.numberOfSimulations + 1)
         )
