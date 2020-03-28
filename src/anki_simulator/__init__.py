@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see https://www.gnu.org/licenses/.
 
+from ._version import __version__  # noqa: F401
 
 # Allows us to use type annotations even on earlier Anki 2.1 releases
 # that do not package types and typing
@@ -57,6 +58,7 @@ def on_deck_browser_will_show_options_menu(menu, deck_id):
 
 import os
 import re
+
 s = re.escape(os.path.sep)
 aqt.mw.addonManager.setWebExports(__name__, f"gui{s}web{s}.*")
 
