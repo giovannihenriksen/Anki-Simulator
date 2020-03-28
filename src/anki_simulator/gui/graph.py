@@ -20,6 +20,9 @@ import json
 import os
 from typing import Dict, List, Union
 
+from PyQt5.QtCore import QUrl
+from PyQt5.QtWebEngineWidgets import QWebEngineView
+
 from aqt.webview import AnkiWebView
 
 try:
@@ -28,36 +31,31 @@ except (ImportError, ModuleNotFoundError):
     theme_manager = None
 
 parent_dir = os.path.abspath(os.path.dirname(__file__))
+package = __name__.split(".")[0]
 
 
-class Graph(AnkiWebView):
-    def __init__(self, *args, **kwargs):
+class GraphWebView(AnkiWebView):
+    def __init__(self, mw, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._mw = mw
+        # prevent UI focus stealing:
         self.setEnabled(False)
-        self.__controls()
+        self._load()
 
-    def __controls(self):
-        path = os.path.join(parent_dir, "graph.html")
-        pathChart = os.path.join(parent_dir, "chart/dist/Chart.bundle.min.js")
-        html = '<head><meta charset="UTF-8"><script>{}</script>'.format(
-            open(pathChart, "r").read()
+    def _load(self):
+        base_url = QUrl(
+            f"http://localhost:{self._mw.mediaServer.getPort()}/"
+            f"_addons/{package}/gui/web/graph.html"
         )
 
+        html_path = os.path.join(parent_dir, "web", "graph.html")
+        with open(html_path, "r") as f:
+            html = f.read()
+
         if theme_manager and theme_manager.night_mode:
-            html += "<style>#chart{background-color:black;}</style>"
-            html += (
-                "<script>"
-                "Chart.defaults.global.defaultFontColor = 'white';"
-                "Chart.defaults.scale.gridLines.color = 'rgba(255, 255, 255, 0.2)';"
-                "Chart.defaults.scale.gridLines.zeroLineColor = 'rgba(255, 255, 255, 0.25)';"
-                "Chart.defaults.global.tooltips.backgroundColor = 'rgba(255, 255, 255, 0.9)';"
-                "Chart.defaults.global.tooltips.bodyFontColor = 'rgba(0, 0, 0, 1)';"
-                "Chart.defaults.global.tooltips.titleFontColor = 'rgba(0, 0, 0, 1)';"
-                "Chart.defaults.global.tooltips.footerFontColor = 'rgba(0, 0, 0, 1)';"
-                "</script>"
-            )
-        html += open(path, "r").read()
-        self.setHtml(html)
+            html = html.replace("<body>", "<body class='nightMode night_mode'>")
+
+        QWebEngineView.setHtml(self, html, baseUrl=base_url)
 
     def addDataSet(self, label: str, data_set: List[Dict[str, Union[str, int]]]):
         self._runJavascript(
