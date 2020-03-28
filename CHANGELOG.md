@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- GiovanniHenriksen: Remove "% correct" for unseen cards from controls, rather basing it off of performance on first learning step.
 - Glutanimate: Optimized simulations, yielding a 25% improvement in simulation speed and 90% improvement in memory utilization
 - Glutanimate: Refactored codebase, adding type annotations and clearer separation between UI code and business logic
 - Glutanimate: Refactored web content to simplify future extendibility and testing outside of Anki
