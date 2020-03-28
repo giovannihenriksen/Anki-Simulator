@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Glutanimate: Refactored web content to simplify future extendibility and testing outside of Anki
 - GiovanniHenriksen: Optimized graph performance by limiting data points per graph to 500 by default. This can be changed through a newly introduced config option.
 - Glutanimate: Added configuration docs
+- Glutanimate: Display add-on version in dialogs
 
 ## [0.1.2] - 2020-03-25
 
