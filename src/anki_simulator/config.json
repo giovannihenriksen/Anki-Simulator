@@ -1,3 +1,4 @@
 {
-  "retention_cutoff_days": 365
+  "retention_cutoff_days": 365,
+  "max_number_of_data_points": 500
 }
