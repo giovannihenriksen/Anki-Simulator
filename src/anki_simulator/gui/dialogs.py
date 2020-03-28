@@ -28,6 +28,7 @@ import aqt
 from aqt.main import AnkiQt
 from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip
 
+from .._version import __version__
 from ..collection_simulator import CollectionSimulator
 from ..review_simulator import ReviewSimulator
 from .forms.anki21 import about_dialog, anki_simulator_dialog
@@ -93,7 +94,10 @@ class SimulatorDialog(QDialog):
         self.config = self.mw.addonManager.getConfig(__name__)
         self.loadDeckConfigurations()
         self.numberOfSimulations = 0
+
+        self.setWindowTitle(f"Anki Simulator v{__version__}")
         restoreGeom(self, "simulatorDialog")
+
         self._thread = None
         self._progress = None
 
@@ -480,7 +484,13 @@ class AboutDialog(QDialog):
         QDialog.__init__(self, parent)
         self.dialog = about_dialog.Ui_about_dialog()
         self.dialog.setupUi(self)
+        self._setVersionText()
         self.dialog.closeButton.clicked.connect(self.close)
+
+    def _setVersionText(self):
+        html = self.dialog.textBrowser.toHtml()
+        html = html.replace("%VERSION%", __version__)
+        self.dialog.textBrowser.setHtml(html)
 
     def close(self):
         self.reject()
