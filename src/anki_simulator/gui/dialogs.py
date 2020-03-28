@@ -49,7 +49,7 @@ def stepsAreValid(steps: List[str]):
 
 
 def downsampleList(list: list, threshold: int):
-    if len(list) <= threshold:
+    if len(list) <= threshold or not threshold:
         return list
     else:
         step = (len(list) - 1) / (threshold - 1)
