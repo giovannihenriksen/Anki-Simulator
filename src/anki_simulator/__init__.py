@@ -53,6 +53,13 @@ def on_deck_browser_will_show_options_menu(menu, deck_id):
     action.triggered.connect(lambda _, did=deck_id: open_simulator_dialog(did))
 
 
+# Web exports
+
+import os
+import re
+s = re.escape(os.path.sep)
+aqt.mw.addonManager.setWebExports(__name__, f"gui{s}web{s}.*")
+
 # Main menu
 
 action = QAction("Anki Simulator", aqt.mw)

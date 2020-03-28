@@ -31,7 +31,7 @@ from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip
 from ..collection_simulator import CollectionSimulator
 from ..review_simulator import ReviewSimulator
 from .forms.anki21 import about_dialog, anki_simulator_dialog
-from .graph import Graph
+from .graph import GraphWebView
 
 
 def listToUser(l):
@@ -101,7 +101,7 @@ class SimulatorDialog(QDialog):
         super().accept()
 
     def setupGraph(self):
-        simulationGraph = Graph(parent=self)
+        simulationGraph = GraphWebView(self.mw, parent=self)
         simulationGraph.setMinimumSize(QSize(0, 227))
         simulationGraph.setObjectName("simulationGraph")
         self.dialog.simulationGraph = simulationGraph
