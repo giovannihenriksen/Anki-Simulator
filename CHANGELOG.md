@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- GiovanniHenriksen: Cards can now be excluded from calculating retention rates by tagging them with 'exclude-retention-rate'
+- GiovanniHenriksen: Added ability to exclude cards from retention rate calculation by tagging them with 'exclude-retention-rate'
+- GiovanniHenriksen: Added option in add-on configurations to set default number of days to simulate when opening the simulator
 
 ## [0.2.0] - 2020-03-28
 
