@@ -160,40 +160,53 @@ class SimulatorDialog(QDialog):
         schedulerEaseCorrection = 1 if schedVersion == 1 else 0
         stats = self.mw.col.db.all(
             f"""\
-            WITH logs AS (
-                        SELECT
-                            type,
-                            (CASE
-                                when type = 0 AND ease = 2 THEN {2 + schedulerEaseCorrection}
-                                when type = 0 AND ease = 3 THEN {3 + schedulerEaseCorrection}
-                                when type = 2 AND ease = 2 THEN {2 + schedulerEaseCorrection}
-                                when type = 2 AND ease = 3 THEN {3 + schedulerEaseCorrection}
-                                ELSE ease
-                            END) AS adjustedEase,
-                            (CASE
-                                when type = 0 THEN 0
-                                when type = 2 THEN 1
-                                when type = 1 AND lastIvl < 21 THEN 2
-                                when type = 1 THEN 3
-                                when type = 3 THEN 4
-                                ELSE 5
-                            END) AS adjustedType,
-                            lastIvl
-                        FROM revlog WHERE cid in (select id from cards where did in {childrenDIDs}) AND id > {idCutOff}
-                    )
-                    SELECT
-                        adjustedType,
-                        (CASE
-                            when lastIvl < 0 THEN lastIvl / -60
-                        END) as adjustedLastIvl,
-                        SUM(adjustedEase = 1) as incorrectCount,
-                        SUM(adjustedEase = 2) AS hardCount,
-                        SUM(adjustedEase = 3) AS correctCount,
-                        SUM(adjustedEase = 4) AS easyCount,
-                        COUNT(*) AS totalCount
-                    FROM logs
-                    GROUP BY adjustedType, adjustedLastIvl
-                    ORDER BY adjustedType, adjustedLastIvl"""
+            WITH logs 
+                 AS (SELECT type, 
+                            ( CASE 
+                                WHEN type = 0 
+                                     AND ease = 2 THEN {2 + schedulerEaseCorrection} 
+                                WHEN type = 0 
+                                     AND ease = 3 THEN {3 + schedulerEaseCorrection} 
+                                WHEN type = 2 
+                                     AND ease = 2 THEN {2 + schedulerEaseCorrection} 
+                                WHEN type = 2 
+                                     AND ease = 3 THEN {3 + schedulerEaseCorrection} 
+                                ELSE ease 
+                              END ) AS adjustedEase, 
+                            ( CASE 
+                                WHEN type = 0 THEN 0 
+                                WHEN type = 2 THEN 1 
+                                WHEN type = 1 
+                                     AND lastivl < 21 THEN 2 
+                                WHEN type = 1 THEN 3 
+                                WHEN type = 3 THEN 4 
+                                ELSE 5 
+                              END ) AS adjustedType, 
+                            lastivl 
+                     FROM   revlog 
+                     WHERE  cid IN (SELECT cards.id 
+                                    FROM   cards 
+                                           INNER JOIN notes 
+                                                   ON cards.nid = notes.id 
+                                    WHERE  did IN {childrenDIDs} 
+                                           AND NOT notes.tags LIKE 
+                                    '%exclude-retention-rate%' 
+                                   ) 
+                            AND id > {idCutOff}) 
+            SELECT adjustedtype, 
+                   ( CASE 
+                       WHEN lastivl < 0 THEN lastivl / -60 
+                     END )               AS adjustedLastIvl, 
+                   Sum(adjustedease = 1) AS incorrectCount, 
+                   Sum(adjustedease = 2) AS hardCount, 
+                   Sum(adjustedease = 3) AS correctCount, 
+                   Sum(adjustedease = 4) AS easyCount, 
+                   Count(*)              AS totalCount 
+            FROM   logs 
+            GROUP  BY adjustedtype, 
+                      adjustedlastivl 
+            ORDER  BY adjustedtype, 
+                      adjustedlastivl """
         )  # type 0 = learn; type 1 = relearn; type 2 = young; type 3 = mature; type 4 = cram; type 5 = reschedule
         learningStepsPercentages = {}
         lapseStepsPercentages = {}
