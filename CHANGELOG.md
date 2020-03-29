@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- GiovanniHenriksen: Cards can now be excluded from calculating retention rates by tagging them with 'exclude-retention-rate'
+
 ## [0.2.0] - 2020-03-28
 
 ### Added
