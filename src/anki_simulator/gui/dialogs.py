@@ -146,7 +146,7 @@ class SimulatorDialog(QDialog):
         self.dialog.graduatingIntervalSpinbox.setProperty("value", graduatingInterval)
         self.dialog.newLapseIntervalSpinbox.setProperty("value", newLapseInterval)
         self.dialog.maximumIntervalSpinbox.setProperty("value", maxInterval)
-
+        self.dialog.daysToSimulateSpinbox.setProperty("value", self.config["default_days_to_simulate"])
         # Collecting deck stats
         deckChildren = [
             childDeck[1] for childDeck in self.mw.col.decks.children(deckID)

@@ -1,4 +1,5 @@
 {
-  "retention_cutoff_days": 365,
-  "max_number_of_data_points": 500
+  "default_days_to_simulate": 180,
+  "max_number_of_data_points": 500,
+  "retention_cutoff_days": 365
 }
