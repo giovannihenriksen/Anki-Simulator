@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "",
+  "properties": {
+    "default_days_to_simulate": {
+      "type": "integer",
+      "title": "Default days to simulate",
+      "description": "Default setting of number of days to simulate every time the simulator is opened.",
+      "default": 180,
+      "minimum": 1
+    },
+    "max_number_of_data_points": {
+      "type": "integer",
+      "title": "Maximum number of data points",
+      "description": "Maximum number of data points to display per graph.",
+      "default": 500,
+      "minimum": 0
+    },
+    "retention_cutoff_days": {
+      "type": "integer",
+      "title": "Number of days for retention rate calculations",
+      "description": "Number of days to consider when reading retention rates from your decks.",
+      "default": 365,
+      "minimum": 1
+    }
+  }
+}

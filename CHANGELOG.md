@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GiovanniHenriksen: Added ability to exclude cards from retention rate calculation by tagging them with 'exclude-retention-rate'
 - GiovanniHenriksen: Added option in add-on configurations to set default number of days to simulate when opening the simulator
 
+### Changed
+
+- Glutanimate: Configuration values are now checked for their validity. This also enables users to utlize @Arthur-Milchior's [Graphical form to change add-on configuration](https://ankiweb.net/shared/info/1014777615) add-on.
+
 ## [0.2.0] - 2020-03-28
 
 ### Added
