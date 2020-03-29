@@ -373,7 +373,6 @@ class SimulatorDialog(QDialog):
         thread = SimulatorThread(sim, parent=self)
         progress = SimulatorProgressDialog(maximum=len(dateArray), parent=self)
 
-        thread.done.connect(progress.finish)
         thread.done.connect(self._on_simulation_done)
         thread.canceled.connect(self._on_simulation_canceled)
 
