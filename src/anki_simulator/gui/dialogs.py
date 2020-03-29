@@ -92,6 +92,7 @@ class SimulatorDialog(QDialog):
             self.toggledGenerateAdditionalCardsCheckbox
         )
         self.config = self.mw.addonManager.getConfig(__name__)
+        self.dialog.daysToSimulateSpinbox.setProperty("value", self.config["default_days_to_simulate"])
         self.loadDeckConfigurations()
         self.numberOfSimulations = 0
 
@@ -146,7 +147,7 @@ class SimulatorDialog(QDialog):
         self.dialog.graduatingIntervalSpinbox.setProperty("value", graduatingInterval)
         self.dialog.newLapseIntervalSpinbox.setProperty("value", newLapseInterval)
         self.dialog.maximumIntervalSpinbox.setProperty("value", maxInterval)
-        self.dialog.daysToSimulateSpinbox.setProperty("value", self.config["default_days_to_simulate"])
+
         # Collecting deck stats
         deckChildren = [
             childDeck[1] for childDeck in self.mw.col.decks.children(deckID)
