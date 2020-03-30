@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Glutanimate: Configuration values are now checked for their validity. This also enables users to utilize @Arthur-Milchior's [Graphical form to change add-on configuration](https://ankiweb.net/shared/info/1014777615) add-on.
-
+- GiovanniHenriksen: Retention rates that have a 95% CI margin of error > 5 % are now excluded. This prevents unrealistic retention rates from showing up. Instead, the default retention rate is set. 
 ### Fixed
 
 - GiovanniHenriksen: Fixed bug that prevented textfields from being edited/selected
