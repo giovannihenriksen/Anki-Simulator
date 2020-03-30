@@ -291,8 +291,7 @@ class SimulatorDialog(QDialog):
             self.dialog.percentCorrectLearningTextfield.setFocus()
             return
         percentagesCorrectForLearningSteps = [
-            float(i) / 100
-            for i in self.dialog.percentCorrectLearningTextfield.text().split()
+            int(i) for i in self.dialog.percentCorrectLearningTextfield.text().split()
         ]
         if len(percentagesCorrectForLearningSteps) != len(learningSteps):
             showInfo(
@@ -305,8 +304,7 @@ class SimulatorDialog(QDialog):
             self.dialog.percentCorrectLapseTextfield.setFocus()
             return
         percentagesCorrectForLapseSteps = [
-            float(i) / 100
-            for i in self.dialog.percentCorrectLapseTextfield.text().split()
+            int(i) for i in self.dialog.percentCorrectLapseTextfield.text().split()
         ]
         if len(percentagesCorrectForLapseSteps) != len(lapseSteps):
             showInfo(
@@ -314,8 +312,8 @@ class SimulatorDialog(QDialog):
             )
             self.dialog.percentCorrectLapseTextfield.setFocus()
             return
-        chanceGoodYoung = float(self.dialog.percentCorrectYoungSpinbox.value()) / 100
-        chanceGoodMature = float(self.dialog.percentCorrectMatureSpinbox.value()) / 100
+        percentageGoodYoung = self.dialog.percentCorrectYoungSpinbox.value()
+        percentageGoodMature = self.dialog.percentCorrectMatureSpinbox.value()
 
         shouldUseActualCards = self.dialog.useActualCardsCheckbox.isChecked()
         shouldGenerateAdditionalCards = (
@@ -369,8 +367,10 @@ class SimulatorDialog(QDialog):
             maxInterval,
             percentagesCorrectForLearningSteps,
             percentagesCorrectForLapseSteps,
-            chanceGoodYoung,
-            chanceGoodMature,
+            percentageGoodYoung,
+            percentageGoodMature,
+            0,  # Percentage hard is set to 0
+            0,  # Percentage easy is set to 0
             self.schedVersion,
         )
 
