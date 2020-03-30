@@ -102,6 +102,12 @@ class CollectionSimulator:
         cids = self._mw.col.decks.cids(did, True)
         for cid in cids:
             card = self._mw.col.getCard(cid)
+            
+            # old bugs with the V2 scheduler or buggy add-ons could cause due and odue
+            # values to be a float, so let's preemptively cast them to an int:
+            fixed_card_due = round(card.due)
+            fixed_card_odue = round(card.odue)
+            
             if card.type == 0:
                 # New card
                 if card.queue != -1 or include_suspended_new_cards:
@@ -111,10 +117,10 @@ class CollectionSimulator:
                 # Learning card
                 if card.queue == -1:
                     continue  # Card is suspended, so we will skip this card.
-                cardDue = card.due - todayInteger
-                if card.odue != 0:
+                cardDue = fixed_card_due - todayInteger
+                if fixed_card_odue != 0:
                     # Card is in a filtered deck, so we will use the 'odue' instead.
-                    cardDue = card.odue - todayInteger
+                    cardDue = fixed_card_odue - todayInteger
                 if card.queue == 1:
                     # This is a day learn card, so the due date is today.
                     cardDue = 0
@@ -137,10 +143,10 @@ class CollectionSimulator:
                 if card.queue == -1:
                     # Card is suspended, so we will skip this card.
                     continue
-                cardDue = card.due - todayInteger
-                if card.odue != 0:
+                cardDue = fixed_card_due - todayInteger
+                if fixed_card_odue != 0:
                     # Card is in a filtered deck, so we will use the 'odue' instead.
-                    cardDue = card.odue - todayInteger
+                    cardDue = fixed_card_odue - todayInteger
                 if cardDue < 0:
                     if include_overdue_cards:
                         cardDue = 0
@@ -160,10 +166,10 @@ class CollectionSimulator:
                 # Relearn card
                 if card.queue == -1:
                     continue  # Relearning card is suspended, so we will skip it.
-                cardDue = card.due - todayInteger
-                if card.odue != 0:
+                cardDue = fixed_card_due - todayInteger
+                if fixed_card_odue != 0:
                     # Card is in a filtered deck, so we will use the 'odue' instead.
-                    cardDue = card.odue - todayInteger
+                    cardDue = fixed_card_odue - todayInteger
                 if card.queue == 1:
                     # This is a day relearn card, so the due date is today.
                     cardDue = 0
