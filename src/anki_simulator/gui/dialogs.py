@@ -18,6 +18,8 @@
 
 import gc
 import time
+import math
+
 from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union
 
 from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
@@ -92,7 +94,9 @@ class SimulatorDialog(QDialog):
             self.toggledGenerateAdditionalCardsCheckbox
         )
         self.config = self.mw.addonManager.getConfig(__name__)
-        self.dialog.daysToSimulateSpinbox.setProperty("value", self.config["default_days_to_simulate"])
+        self.dialog.daysToSimulateSpinbox.setProperty(
+            "value", self.config["default_days_to_simulate"]
+        )
         self.loadDeckConfigurations()
         self.numberOfSimulations = 0
 
@@ -101,7 +105,6 @@ class SimulatorDialog(QDialog):
 
         self._thread = None
         self._progress = None
-
 
     def showAboutDialog(self):
         aboutDialog = AboutDialog(self)
@@ -223,24 +226,47 @@ class SimulatorDialog(QDialog):
             easyCount,
             totalCount,
         ) in stats:
-            if type == 0:
-                learningStepsPercentages[lastIvl] = int(
-                    ((correctCount + easyCount) / totalCount) * 100
-                )
-            elif type == 1:
-                lapseStepsPercentages[lastIvl] = int(
-                    ((correctCount + easyCount) / totalCount) * 100
-                )
-            elif type == 2:
-                percentageCorrectYoungCards = int(
-                    ((correctCount + easyCount) / totalCount) * 100
-                )
-            elif type == 3:
-                percentageCorrectMatureCards = int(
-                    ((correctCount + easyCount) / totalCount) * 100
-                )
-            else:
-                break
+            if totalCount > 0:
+                percentage = (correctCount + easyCount) / totalCount
+                marginOfError = 200 * math.sqrt(
+                    (percentage * (1 - percentage)) / totalCount
+                )  # for 95% confidence interval
+                marginOfErrorCutOff = 5  # only include actual percentages if the 95% margin of error from the mean
+                # is less than 5%
+                if type == 0:
+                    if 0 < marginOfError <= marginOfErrorCutOff:
+                        learningStepsPercentages[lastIvl] = int(percentage * 100)
+                    print(
+                        "Margin of error for type {} {}: {})".format(
+                            type, lastIvl, marginOfError
+                        )
+                    )
+                elif type == 1:
+                    if (0 < marginOfError <= marginOfErrorCutOff):
+                        lapseStepsPercentages[lastIvl] = int(percentage * 100)
+                    print(
+                        "Margin of error for type {} {}: {})".format(
+                            type, lastIvl, marginOfError
+                        )
+                    )
+                elif type == 2:
+                    if 0 < marginOfError <= marginOfErrorCutOff:
+                        percentageCorrectYoungCards = int(percentage * 100)
+                    print(
+                        "Margin of error for type {}: {})".format(
+                            type, marginOfError
+                        )
+                    )
+                elif type == 3:
+                    if 0 < marginOfError <= marginOfErrorCutOff:
+                        percentageCorrectMatureCards = int(percentage * 100)
+                    print(
+                        "Margin of error for type {}: {}".format(
+                            type, marginOfError
+                        )
+                    )
+                else:
+                    break
         self.dialog.percentCorrectLearningTextfield.setText(
             listToUser(
                 [
