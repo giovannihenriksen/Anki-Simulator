@@ -33,7 +33,7 @@ from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip
 from .._version import __version__
 from ..collection_simulator import CollectionSimulator
 from ..review_simulator import ReviewSimulator
-from .forms.anki21 import about_dialog, anki_simulator_dialog
+from .forms.anki21 import about_dialog, anki_simulator_dialog, manual_dialog
 from .graph import GraphWebView
 
 
@@ -87,6 +87,7 @@ class SimulatorDialog(QDialog):
             self.clear_last_simulation
         )
         self.dialog.aboutButton.clicked.connect(self.showAboutDialog)
+        self.dialog.manualButton.clicked.connect(self.showManual)
         self.dialog.useActualCardsCheckbox.toggled.connect(
             self.toggledUseActualCardsCheckbox
         )
@@ -109,6 +110,10 @@ class SimulatorDialog(QDialog):
     def showAboutDialog(self):
         aboutDialog = AboutDialog(self)
         aboutDialog.exec_()
+
+    def showManual(self):
+        manual = ManualDialog(self)
+        manual.exec_()
 
     def reject(self):
         saveGeom(self, "simulatorDialog")
@@ -228,7 +233,7 @@ class SimulatorDialog(QDialog):
         ) in stats:
             if totalCount > 10:
                 percentage = (correctCount + easyCount) / totalCount
-                marginOfError = 200 * math.sqrt(
+                marginOfError = 196 * math.sqrt(
                     (percentage * (1 - percentage)) / totalCount
                 )  # for 95% confidence interval
                 marginOfErrorCutOff = 5  # only include actual percentages if the 95% margin of error from the mean
@@ -248,7 +253,9 @@ class SimulatorDialog(QDialog):
         self.dialog.percentCorrectLearningTextfield.setText(
             listToUser(
                 [
-                    learningStepsPercentages.get(learningStep, defaultLearningSteps[index])
+                    learningStepsPercentages.get(
+                        learningStep, defaultLearningSteps[index]
+                    )
                     for index, learningStep in enumerate(learningSteps)
                 ]
             )
@@ -508,6 +515,17 @@ class AboutDialog(QDialog):
         html = self.dialog.textBrowser.toHtml()
         html = html.replace("%VERSION%", __version__)
         self.dialog.textBrowser.setHtml(html)
+
+    def close(self):
+        self.reject()
+
+
+class ManualDialog(QDialog):
+    def __init__(self, parent):
+        QDialog.__init__(self, parent)
+        self.dialog = manual_dialog.Ui_manual_dialog()
+        self.dialog.setupUi(self)
+        self.dialog.closeButton.clicked.connect(self.close)
 
     def close(self):
         self.reject()
