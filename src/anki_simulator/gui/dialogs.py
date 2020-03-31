@@ -226,52 +226,30 @@ class SimulatorDialog(QDialog):
             easyCount,
             totalCount,
         ) in stats:
-            if totalCount > 0:
+            if totalCount > 10:
                 percentage = (correctCount + easyCount) / totalCount
                 marginOfError = 200 * math.sqrt(
                     (percentage * (1 - percentage)) / totalCount
                 )  # for 95% confidence interval
                 marginOfErrorCutOff = 5  # only include actual percentages if the 95% margin of error from the mean
                 # is less than 5%
-                if type == 0:
-                    if 0 < marginOfError <= marginOfErrorCutOff:
+                if 0 < marginOfError <= marginOfErrorCutOff:
+                    if type == 0:
                         learningStepsPercentages[lastIvl] = int(percentage * 100)
-                    print(
-                        "Margin of error for type {} {}: {})".format(
-                            type, lastIvl, marginOfError
-                        )
-                    )
-                elif type == 1:
-                    if (0 < marginOfError <= marginOfErrorCutOff):
+                    elif type == 1:
                         lapseStepsPercentages[lastIvl] = int(percentage * 100)
-                    print(
-                        "Margin of error for type {} {}: {})".format(
-                            type, lastIvl, marginOfError
-                        )
-                    )
-                elif type == 2:
-                    if 0 < marginOfError <= marginOfErrorCutOff:
+                    elif type == 2:
                         percentageCorrectYoungCards = int(percentage * 100)
-                    print(
-                        "Margin of error for type {}: {})".format(
-                            type, marginOfError
-                        )
-                    )
-                elif type == 3:
-                    if 0 < marginOfError <= marginOfErrorCutOff:
+                    elif type == 3:
                         percentageCorrectMatureCards = int(percentage * 100)
-                    print(
-                        "Margin of error for type {}: {}".format(
-                            type, marginOfError
-                        )
-                    )
-                else:
-                    break
+                    else:
+                        break
+        defaultLearningSteps = [70, 92, 92]
         self.dialog.percentCorrectLearningTextfield.setText(
             listToUser(
                 [
-                    learningStepsPercentages.get(learningStep, 92)
-                    for learningStep in learningSteps
+                    learningStepsPercentages.get(learningStep, defaultLearningSteps[index])
+                    for index, learningStep in enumerate(learningSteps)
                 ]
             )
         )
