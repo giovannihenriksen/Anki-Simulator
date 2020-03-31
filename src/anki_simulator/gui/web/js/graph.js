@@ -100,8 +100,8 @@ function newDataSet(label, dataAsJSON) {
     borderColor: color,
     data: parsedData,
     fill: false,
-    pointRadius: ((parsedData.length > 1) ? 0 : 5),
-    pointHoverRadius: 5
+    pointRadius: ((parsedData.length > 1) ? 0 : 4),
+    pointHoverRadius: 4
   };
   chart.data.datasets.push(newDataset);
   chart.update();

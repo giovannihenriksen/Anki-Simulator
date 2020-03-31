@@ -25,7 +25,8 @@ Anyone is free to suggest new features, submit issues or create pull requests.
 ## Authors 
 
 * **GiovanniHenriksen** 
-* **Aristotelis P.** -- [Glutanimate](https://glutanimate.com)
+* **Aristotelis P.** - [Glutanimate](https://glutanimate.com)
+
 ## License
 © 2020 GiovanniHenriksen & Aristotelis P. (Glutanimate)
 
