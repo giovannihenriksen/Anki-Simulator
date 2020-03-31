@@ -2,6 +2,7 @@
 
 Anki Simulator is an add-on for Anki that simulates Anki progress over time using the user's cards, deck options and statistics. More info can be found on the Reddit thread.
 
+![](screenshots/Screenshot_1.png)
 - [Installation](#Installation)
 - [Building](#Building)
 - [Contributing](#Contributing)
