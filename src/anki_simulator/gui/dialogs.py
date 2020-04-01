@@ -239,7 +239,7 @@ class SimulatorDialog(QDialog):
             totalCount,
         ) in stats:
             if totalCount > 0:
-                included = correctCount + easyCount
+                included = hardCount / 2 + correctCount + easyCount
                 percentage = included / totalCount
                 marginOfError = 196 * math.sqrt(
                     ((percentage * (1 - percentage)) / totalCount)
@@ -328,12 +328,11 @@ class SimulatorDialog(QDialog):
                 lowerBound = max(round(mean - marginOfError, 1), 0)
                 upperBound = min(round(mean + marginOfError, 1), 100)
                 learningStepsToolTip += "\n- Learning step {}: {}% - {}% ({}/{})".format(
-                    learningStep, lowerBound, upperBound, included, total
+                    learningStep, lowerBound, upperBound, round(included), total
                 )
             else:
-                learningStepsToolTip += (
-                    "\n- Learning step {}: Actual retention was not accurate enough to be "
-                    "determined ({}/{})".format(learningStep, included, total)
+                learningStepsToolTip += "\n- Learning step {}: Not enough data to estimate retention rate ({}/{})".format(
+                    learningStep, round(included), total
                 )
         self.dialog.percentCorrectLearningTextfield.setToolTip(learningStepsToolTip)
         self.dialog.percentCorrectLapseTextfield.setText(
@@ -354,12 +353,12 @@ class SimulatorDialog(QDialog):
                 lowerBound = max(round(mean - marginOfError, 1), 0)
                 upperBound = min(round(mean + marginOfError, 1), 100)
                 lapseStepsToolTip += "\n- Lapse step {}: {}% - {}% ({}/{})".format(
-                    lapseStep, lowerBound, upperBound, included, total
+                    lapseStep, lowerBound, upperBound, round(included), total
                 )
             else:
                 lapseStepsToolTip += (
-                    "\n- Lapse step {}: Actual retention was not accurate enough to be determined ({"
-                    "}/{})".format(lapseStep, included, total)
+                    "\n- Lapse step {}: Not enough data to estimate retention rate ({"
+                    "}/{})".format(lapseStep, round(included), total)
                 )
         self.dialog.percentCorrectLapseTextfield.setToolTip(lapseStepsToolTip)
         self.dialog.percentCorrectYoungSpinbox.setProperty(
@@ -375,15 +374,14 @@ class SimulatorDialog(QDialog):
                 "95% Confidence interval: {}% - {}% ({}/{})".format(
                     youngCardsLowerBound,
                     youngCardsUpperBound,
-                    youngCardsIncluded,
+                    round(youngCardsIncluded),
                     youngCardsTotal,
                 )
             )
         else:
             self.dialog.percentCorrectYoungSpinbox.setToolTip(
-                "Actual retention was not accurate enough to be determined ({}/{})".format(
-                    youngCardsIncluded,
-                    youngCardsTotal,
+                "Not enough data to estimate retention rate ({}/{})".format(
+                    round(youngCardsIncluded), youngCardsTotal,
                 )
             )
 
@@ -400,15 +398,14 @@ class SimulatorDialog(QDialog):
                 "95% Confidence interval: {}% - {}% ({}/{})".format(
                     matureCardsLowerBound,
                     matureCardsUpperBound,
-                    matureCardsIncluded,
+                    round(matureCardsIncluded),
                     matureCardsTotal,
                 )
             )
         else:
             self.dialog.percentCorrectMatureSpinbox.setToolTip(
-                "Actual retention was not accurate enough to be determined ({}/{})".format(
-                    matureCardsIncluded,
-                    matureCardsTotal,
+                "Not enough data to estimate retention rate ({}/{})".format(
+                    round(matureCardsIncluded), matureCardsTotal,
                 )
             )
 
