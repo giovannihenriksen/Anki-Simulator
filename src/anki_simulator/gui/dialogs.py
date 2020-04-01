@@ -101,7 +101,7 @@ class SimulatorDialog(QDialog):
         self.loadDeckConfigurations()
         self.numberOfSimulations = 0
 
-        self.setWindowTitle(f"Anki Simulator v{__version__}")
+        self.setWindowTitle(f"Anki Simulator v{__version__} by GiovanniHenriksen & Glutanimate")
         restoreGeom(self, "simulatorDialog")
 
         self._thread = None
@@ -331,7 +331,7 @@ class SimulatorDialog(QDialog):
                     learningStep, lowerBound, upperBound, round(included), total
                 )
             else:
-                learningStepsToolTip += "\n- Learning step {}: Not enough data to estimate retention rate ({}/{})".format(
+                learningStepsToolTip += "\n- Learning step {}: Not enough data to accurately estimate retention rate ({}/{})".format(
                     learningStep, round(included), total
                 )
         self.dialog.percentCorrectLearningTextfield.setToolTip(learningStepsToolTip)
@@ -357,7 +357,7 @@ class SimulatorDialog(QDialog):
                 )
             else:
                 lapseStepsToolTip += (
-                    "\n- Lapse step {}: Not enough data to estimate retention rate ({"
+                    "\n- Lapse step {}: Not enough data to accurately estimate retention rate ({"
                     "}/{})".format(lapseStep, round(included), total)
                 )
         self.dialog.percentCorrectLapseTextfield.setToolTip(lapseStepsToolTip)
@@ -380,7 +380,7 @@ class SimulatorDialog(QDialog):
             )
         else:
             self.dialog.percentCorrectYoungSpinbox.setToolTip(
-                "Not enough data to estimate retention rate ({}/{})".format(
+                "Not enough data to accurately estimate retention rate ({}/{})".format(
                     round(youngCardsIncluded), youngCardsTotal,
                 )
             )
@@ -404,7 +404,7 @@ class SimulatorDialog(QDialog):
             )
         else:
             self.dialog.percentCorrectMatureSpinbox.setToolTip(
-                "Not enough data to estimate retention rate ({}/{})".format(
+                "Not enough data to accurately estimate retention rate ({}/{})".format(
                     round(matureCardsIncluded), matureCardsTotal,
                 )
             )
