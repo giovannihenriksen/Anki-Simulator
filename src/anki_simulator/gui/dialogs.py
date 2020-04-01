@@ -220,11 +220,11 @@ class SimulatorDialog(QDialog):
 
         # Setting default values for percentages:
         learningStepsPercentages = {
-            learningStep: ((70, None, 0, 0) if index == 0 else (90, None, 0, 0))
+            learningStep: ((70, None, 0, 0) if index == 0 else (92, None, 0, 0))
             for index, learningStep in enumerate(learningSteps)
         }
         lapseStepsPercentages = {
-            lapseStep: (90, None, 0, 0) for lapseStep in lapseSteps
+            lapseStep: (92, None, 0, 0) for lapseStep in lapseSteps
         }
         percentageCorrectYoungCards = (90, None, 0, 0)
         percentageCorrectMatureCards = (90, None, 0, 0)
@@ -338,11 +338,12 @@ class SimulatorDialog(QDialog):
         self.dialog.percentCorrectLapseTextfield.setText(
             listToUser(
                 [
-                    int(lapseStepsPercentages.get(lapseStep, (92, None))[0])
+                    int(lapseStepsPercentages[lapseStep][0])
                     for lapseStep in lapseSteps
                 ]
             )
         )
+
         lapseStepsToolTip = "95% Confidence intervals:"
         for lapseStep in lapseSteps:
             marginOfError = lapseStepsPercentages[lapseStep][1]
@@ -361,15 +362,17 @@ class SimulatorDialog(QDialog):
                     "}/{})".format(lapseStep, round(included), total)
                 )
         self.dialog.percentCorrectLapseTextfield.setToolTip(lapseStepsToolTip)
-        self.dialog.percentCorrectYoungSpinbox.setProperty(
-            "value", int(percentageCorrectYoungCards[0])
-        )
+
+        youngCardsMean = percentageCorrectYoungCards[0]
         youngCardsMarginOfError = percentageCorrectYoungCards[1]
         youngCardsIncluded = percentageCorrectYoungCards[2]
         youngCardsTotal = percentageCorrectYoungCards[3]
+        self.dialog.percentCorrectYoungSpinbox.setProperty(
+            "value", int(youngCardsMean)
+        )
         if youngCardsMarginOfError:
-            youngCardsLowerBound = max(round(mean - youngCardsMarginOfError, 1), 0)
-            youngCardsUpperBound = min(round(mean + youngCardsMarginOfError, 1), 100)
+            youngCardsLowerBound = max(round(youngCardsMean - youngCardsMarginOfError, 1), 0)
+            youngCardsUpperBound = min(round(youngCardsMean + youngCardsMarginOfError, 1), 100)
             self.dialog.percentCorrectYoungSpinbox.setToolTip(
                 "95% Confidence interval: {}% - {}% ({}/{})".format(
                     youngCardsLowerBound,
@@ -385,15 +388,16 @@ class SimulatorDialog(QDialog):
                 )
             )
 
-        self.dialog.percentCorrectMatureSpinbox.setProperty(
-            "value", int(percentageCorrectMatureCards[0])
-        )
+        matureCardsMean = percentageCorrectMatureCards[0]
         matureCardsMarginOfError = percentageCorrectMatureCards[1]
         matureCardsIncluded = percentageCorrectMatureCards[2]
         matureCardsTotal = percentageCorrectMatureCards[3]
+        self.dialog.percentCorrectMatureSpinbox.setProperty(
+            "value", int(matureCardsMean)
+        )
         if matureCardsMarginOfError:
-            matureCardsLowerBound = max(round(mean - matureCardsMarginOfError, 1), 0)
-            matureCardsUpperBound = min(round(mean + matureCardsMarginOfError, 1), 100)
+            matureCardsLowerBound = max(round(matureCardsMean - matureCardsMarginOfError, 1), 0)
+            matureCardsUpperBound = min(round(matureCardsMean + matureCardsMarginOfError, 1), 100)
             self.dialog.percentCorrectMatureSpinbox.setToolTip(
                 "95% Confidence interval: {}% - {}% ({}/{})".format(
                     matureCardsLowerBound,
