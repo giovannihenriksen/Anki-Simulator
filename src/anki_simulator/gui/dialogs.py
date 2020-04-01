@@ -217,10 +217,17 @@ class SimulatorDialog(QDialog):
             ORDER  BY adjustedtype, 
                       adjustedlastivl """
         )  # type 0 = learn; type 1 = relearn; type 2 = young; type 3 = mature; type 4 = cram; type 5 = reschedule
-        learningStepsPercentages = {}
-        lapseStepsPercentages = {}
-        percentageCorrectYoungCards = 90
-        percentageCorrectMatureCards = 90
+
+        # Setting default values for percentages:
+        learningStepsPercentages = {
+            learningStep: ((70, None, 0, 0) if index == 0 else (90, None, 0, 0))
+            for index, learningStep in enumerate(learningSteps)
+        }
+        lapseStepsPercentages = {
+            lapseStep: (90, None, 0, 0) for lapseStep in lapseSteps
+        }
+        percentageCorrectYoungCards = (90, None, 0, 0)
+        percentageCorrectMatureCards = (90, None, 0, 0)
 
         for (
             type,
@@ -231,46 +238,179 @@ class SimulatorDialog(QDialog):
             easyCount,
             totalCount,
         ) in stats:
-            if totalCount > 10:
-                percentage = (correctCount + easyCount) / totalCount
+            if totalCount > 0:
+                included = correctCount + easyCount
+                percentage = included / totalCount
                 marginOfError = 196 * math.sqrt(
-                    (percentage * (1 - percentage)) / totalCount
+                    ((percentage * (1 - percentage)) / totalCount)
                 )  # for 95% confidence interval
                 marginOfErrorCutOff = 5  # only include actual percentages if the 95% margin of error from the mean
                 # is less than 5%
-                if 0 < marginOfError <= marginOfErrorCutOff:
-                    if type == 0:
-                        learningStepsPercentages[lastIvl] = int(percentage * 100)
-                    elif type == 1:
-                        lapseStepsPercentages[lastIvl] = int(percentage * 100)
-                    elif type == 2:
-                        percentageCorrectYoungCards = int(percentage * 100)
-                    elif type == 3:
-                        percentageCorrectMatureCards = int(percentage * 100)
+                if type == 0:
+                    if 0 < marginOfError <= marginOfErrorCutOff and totalCount > 10:
+                        learningStepsPercentages[lastIvl] = (
+                            percentage * 100,
+                            marginOfError,
+                            included,
+                            totalCount,
+                        )
                     else:
-                        break
-        defaultLearningSteps = [70, 92, 92]
+                        if lastIvl in learningStepsPercentages:
+                            learningStepsPercentages[lastIvl] = (
+                                learningStepsPercentages[lastIvl][0],
+                                learningStepsPercentages[lastIvl][1],
+                                included,
+                                totalCount,
+                            )
+                elif type == 1:
+                    if 0 < marginOfError <= marginOfErrorCutOff and totalCount > 10:
+                        lapseStepsPercentages[lastIvl] = (
+                            percentage * 100,
+                            marginOfError,
+                            included,
+                            totalCount,
+                        )
+                    else:
+                        if lastIvl in lapseStepsPercentages:
+                            lapseStepsPercentages[lastIvl] = (
+                                lapseStepsPercentages[lastIvl][0],
+                                lapseStepsPercentages[lastIvl][1],
+                                included,
+                                totalCount,
+                            )
+                elif type == 2:
+                    if 0 < marginOfError <= marginOfErrorCutOff and totalCount > 10:
+                        percentageCorrectYoungCards = (
+                            percentage * 100,
+                            marginOfError,
+                            included,
+                            totalCount,
+                        )
+                    else:
+                        percentageCorrectYoungCards = (
+                            percentageCorrectYoungCards[0],
+                            percentageCorrectYoungCards[1],
+                            included,
+                            totalCount,
+                        )
+                elif type == 3:
+                    if 0 < marginOfError <= marginOfErrorCutOff and totalCount > 10:
+                        percentageCorrectMatureCards = (
+                            percentage * 100,
+                            marginOfError,
+                            included,
+                            totalCount,
+                        )
+                    else:
+                        percentageCorrectMatureCards = (
+                            percentageCorrectMatureCards[0],
+                            percentageCorrectMatureCards[1],
+                            included,
+                            totalCount,
+                        )
+                else:
+                    break
         self.dialog.percentCorrectLearningTextfield.setText(
             listToUser(
                 [
-                    learningStepsPercentages.get(
-                        learningStep, defaultLearningSteps[index]
-                    )
-                    for index, learningStep in enumerate(learningSteps)
+                    int(learningStepsPercentages[learningStep][0])
+                    for learningStep in learningSteps
                 ]
             )
         )
+        learningStepsToolTip = "95% Confidence intervals:"
+        for learningStep in learningSteps:
+            marginOfError = learningStepsPercentages[learningStep][1]
+            included = learningStepsPercentages[learningStep][2]
+            total = learningStepsPercentages[learningStep][3]
+            if marginOfError:
+                mean = learningStepsPercentages[learningStep][0]
+                lowerBound = max(round(mean - marginOfError, 1), 0)
+                upperBound = min(round(mean + marginOfError, 1), 100)
+                learningStepsToolTip += "\n- Learning step {}: {}% - {}% ({}/{})".format(
+                    learningStep, lowerBound, upperBound, included, total
+                )
+            else:
+                learningStepsToolTip += (
+                    "\n- Learning step {}: Actual retention was not accurate enough to be "
+                    "determined ({}/{})".format(learningStep, included, total)
+                )
+        self.dialog.percentCorrectLearningTextfield.setToolTip(learningStepsToolTip)
         self.dialog.percentCorrectLapseTextfield.setText(
             listToUser(
-                [lapseStepsPercentages.get(lapseStep, 92) for lapseStep in lapseSteps]
+                [
+                    int(lapseStepsPercentages.get(lapseStep, (92, None))[0])
+                    for lapseStep in lapseSteps
+                ]
             )
         )
+        lapseStepsToolTip = "95% Confidence intervals:"
+        for lapseStep in lapseSteps:
+            marginOfError = lapseStepsPercentages[lapseStep][1]
+            included = lapseStepsPercentages[lapseStep][2]
+            total = lapseStepsPercentages[lapseStep][3]
+            if marginOfError:
+                mean = lapseStepsPercentages[lapseStep][0]
+                lowerBound = max(round(mean - marginOfError, 1), 0)
+                upperBound = min(round(mean + marginOfError, 1), 100)
+                lapseStepsToolTip += "\n- Lapse step {}: {}% - {}% ({}/{})".format(
+                    lapseStep, lowerBound, upperBound, included, total
+                )
+            else:
+                lapseStepsToolTip += (
+                    "\n- Lapse step {}: Actual retention was not accurate enough to be determined ({"
+                    "}/{})".format(lapseStep, included, total)
+                )
+        self.dialog.percentCorrectLapseTextfield.setToolTip(lapseStepsToolTip)
         self.dialog.percentCorrectYoungSpinbox.setProperty(
-            "value", percentageCorrectYoungCards
+            "value", int(percentageCorrectYoungCards[0])
         )
+        youngCardsMarginOfError = percentageCorrectYoungCards[1]
+        youngCardsIncluded = percentageCorrectYoungCards[2]
+        youngCardsTotal = percentageCorrectYoungCards[3]
+        if youngCardsMarginOfError:
+            youngCardsLowerBound = max(round(mean - youngCardsMarginOfError, 1), 0)
+            youngCardsUpperBound = min(round(mean + youngCardsMarginOfError, 1), 100)
+            self.dialog.percentCorrectYoungSpinbox.setToolTip(
+                "95% Confidence interval: {}% - {}% ({}/{})".format(
+                    youngCardsLowerBound,
+                    youngCardsUpperBound,
+                    youngCardsIncluded,
+                    youngCardsTotal,
+                )
+            )
+        else:
+            self.dialog.percentCorrectYoungSpinbox.setToolTip(
+                "Actual retention was not accurate enough to be determined ({}/{})".format(
+                    youngCardsIncluded,
+                    youngCardsTotal,
+                )
+            )
+
         self.dialog.percentCorrectMatureSpinbox.setProperty(
-            "value", percentageCorrectMatureCards
+            "value", int(percentageCorrectMatureCards[0])
         )
+        matureCardsMarginOfError = percentageCorrectMatureCards[1]
+        matureCardsIncluded = percentageCorrectMatureCards[2]
+        matureCardsTotal = percentageCorrectMatureCards[3]
+        if matureCardsMarginOfError:
+            matureCardsLowerBound = max(round(mean - matureCardsMarginOfError, 1), 0)
+            matureCardsUpperBound = min(round(mean + matureCardsMarginOfError, 1), 100)
+            self.dialog.percentCorrectMatureSpinbox.setToolTip(
+                "95% Confidence interval: {}% - {}% ({}/{})".format(
+                    matureCardsLowerBound,
+                    matureCardsUpperBound,
+                    matureCardsIncluded,
+                    matureCardsTotal,
+                )
+            )
+        else:
+            self.dialog.percentCorrectMatureSpinbox.setToolTip(
+                "Actual retention was not accurate enough to be determined ({}/{})".format(
+                    matureCardsIncluded,
+                    matureCardsTotal,
+                )
+            )
 
     def simulate(self):
         daysToSimulate = int(self.dialog.daysToSimulateSpinbox.value())
