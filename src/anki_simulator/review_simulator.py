@@ -216,9 +216,7 @@ class ReviewSimulator:
                             card.state, dayIndex, int(self.learningSteps[0] / 1440)
                         )
                     elif review_answer == ANSWER_HARD:
-                        print(
-                            "No support currently for 'hard' new cards. Ignoring this card."
-                        )
+                        raise ValueError("No support currently for 'hard' new cards.")
                     elif review_answer == ANSWER_GOOD:
                         if card.step < len(self.learningSteps) - 1:
                             # Unseen card was correct and will become a learning card.
@@ -240,9 +238,7 @@ class ReviewSimulator:
                                 card.state = CARD_STATE_YOUNG
                             daysToAdd = card.ivl
                     elif review_answer == ANSWER_EASY:
-                        print(
-                            "No support currently for 'easy' new cards. Ignoring this card."
-                        )
+                        raise ValueError("No support currently for 'easy' new cards.")
                 elif card.state == CARD_STATE_LEARNING:
                     if review_answer == ANSWER_WRONG:
                         # Learning card was incorrect and will become/remain a learning card.
@@ -252,9 +248,7 @@ class ReviewSimulator:
                             card.state, dayIndex, int(self.learningSteps[0] / 1440)
                         )
                     elif review_answer == ANSWER_HARD:
-                        print(
-                            "No support currently for 'hard' learning cards. Ignoring this card."
-                        )
+                        raise ValueError("No support currently for 'hard' learning cards.")
                     elif review_answer == ANSWER_GOOD:
                         if card.step < len(self.learningSteps) - 1:
                             # Learning card was correct and will remain a learning card.
@@ -277,9 +271,7 @@ class ReviewSimulator:
                                 card.state = CARD_STATE_YOUNG
                             daysToAdd = card.ivl
                     elif review_answer == ANSWER_EASY:
-                        print(
-                            "No support currently for 'easy' learning cards. Ignoring this card."
-                        )
+                        raise ValueError("No support currently for 'easy' learning cards.")
                 elif card.state == CARD_STATE_RELEARN:
                     if review_answer == ANSWER_WRONG:
                         # Relearn card was incorrect and will remain a relearn card.
@@ -292,9 +284,7 @@ class ReviewSimulator:
                             card.state, dayIndex, int(self.lapseSteps[0] / 1440)
                         )
                     elif review_answer == ANSWER_HARD:
-                        print(
-                            "No support currently for 'hard' relearn cards. Ignoring this card."
-                        )
+                        raise ValueError("No support currently for 'hard' relearn cards.")
                     elif review_answer == ANSWER_GOOD:
                         if card.step < len(self.lapseSteps) - 1:
                             # Relearn card was correct and will remain a relearn card.
@@ -316,9 +306,7 @@ class ReviewSimulator:
                                 card.state = CARD_STATE_YOUNG
                             daysToAdd = card.ivl
                     elif review_answer == ANSWER_EASY:
-                        print(
-                            "No support currently for 'easy' relearn cards. Ignoring this card."
-                        )
+                        raise ValueError("No support currently for 'easy' relearn cards.")
                 elif card.state == CARD_STATE_YOUNG or card.state == CARD_STATE_MATURE:
                     if review_answer == ANSWER_WRONG:
                         card.state = CARD_STATE_RELEARN
