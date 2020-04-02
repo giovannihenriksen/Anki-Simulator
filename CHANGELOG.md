@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - GiovanniHenriksen: Fixed bug that prevented textfields from being edited/selected
+- GiovanniHenriksen: Improved simulator scheduler to very closely match the actual scheduler, including Anki's V2 scheduler.
 - Glutanimate: Fixed an issue where invalid intervals in the user's collection would prevent the add-on from working (thanks to Samer over on Patreon for the report)
 
 ## [0.2.0] - 2020-03-28
