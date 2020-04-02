@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1139</width>
-    <height>779</height>
+    <width>1112</width>
+    <height>790</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -493,13 +493,6 @@
         </property>
        </spacer>
       </item>
-      <item row="0" column="5">
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>&lt;b&gt;Your Performance&lt;/b&gt;</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="4">
        <spacer name="horizontalSpacer_4">
         <property name="orientation">
@@ -662,6 +655,19 @@
         </property>
         <property name="value">
          <number>90</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5" colspan="6">
+       <widget class="QLabel" name="label_5">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Your Performance &lt;/span&gt;(Based on your past reviews)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
        </widget>
       </item>
