@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>manual_dialog</class>
+ <widget class="QWidget" name="manual_dialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>988</width>
+    <height>779</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Anki Simulator Manual</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QTextBrowser" name="textBrowser">
+     <property name="html">
+      <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.AppleSystemUIFont'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;ankisimulatormanual&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;A&lt;/span&gt;&lt;span style=&quot; font-size:xx-large; font-weight:600;&quot;&gt;nki Simulator Manual&lt;/span&gt; &lt;/p&gt;
+&lt;p style=&quot; margin-top:14px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;whatisankisimulator&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;W&lt;/span&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;hat is Anki Simulator?&lt;/span&gt; &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Anki Simulator is an add-on for Anki that lets you simulate Anki progress over time using your cards, deck options and statistics. You can use it to estimate your future workload or to fine-tune and compare deck options.&lt;/p&gt;
+&lt;p style=&quot; margin-top:14px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;howdoiuseit&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;H&lt;/span&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;ow do I use it?&lt;/span&gt; &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Deck options and deck performance should come pre-loaded. Just press simulate to see your first simulation! The Y-axis shows the estimated total number of cards you will see on day X. You can perform multiple simulations with different deck options and performance (retention) rates to compare the long-term results. If you adjust deck options, you should also adequately estimate new corresponding performance rates. &lt;/p&gt;
+&lt;p style=&quot; margin-top:14px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;deckoptions&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;D&lt;/span&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;eck options&lt;/span&gt; &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Please read the &lt;a href=&quot;https://docs.ankiweb.net/#/deck-options&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;section about deck options&lt;/span&gt;&lt;/a&gt; in the Anki Manual for definitions of all deck options. &lt;/p&gt;
+&lt;p style=&quot; margin-top:14px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;simulationoptions&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;S&lt;/span&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;imulation options&lt;/span&gt; &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Here you can decide whether you want to use the actual cards that belong to your selected deck, simulate additional new cards, or just want to mock a deck that contains an X number of new cards instead. Also, you can choose to exclude/include suspended new cards and overdue cards. Suspended reviews are always excluded. &lt;/p&gt;
+&lt;p style=&quot; margin-top:14px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;performancerates&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;P&lt;/span&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;erformance rates&lt;/span&gt; &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;These are your retention rates. This number includes cards that were answered 'good' and 'easy', as well as 50% of cards that were answered 'hard'. If you hover your mouse over the values, you will also see the reliability of the percentages. By default, the rates are based on your performance in the past 365 days. You can change this number of days to any cut-off you prefer in the add-on configurations. You can also exclude cards from retention calculation by tagging them with 'exclude-retention-rate'. Note: Only accurate retention rates are collected. If the margin of error is higher than 5% (based on the 95% confidence interval), retention rates are ignored. Instead, default performance rates are shown: '92%' for learning/lapse steps, and '90%' for young and mature cards. &lt;/p&gt;
+&lt;p style=&quot; margin-top:14px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;howaccurateisit&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;H&lt;/span&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;ow accurate is it?&lt;/span&gt; &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Anki Simulator was carefully written to closely match Anki's scheduling algorithm. Because the add-on uses your actual cards, deck options and statistics, Anki Simulator is able to produce a personalized simulation. If you provide accurate variables, the simulator should do a great job of approximating your future workload. Obviously however, long-term outcomes rely on many factors that can't be implemented in an add-on. Furthermore, some factors were not taken into account: such as pressing ‘hard’ or ‘easy’ buttons. &lt;span style=&quot; font-family:'Helvetica Neue';&quot;&gt;The simulator assumes that excluding them both should balance their effects out for a large part. Lastly, keep in mind that your future performance rates may vary. &lt;/span&gt;  &lt;/p&gt;
+&lt;p style=&quot; margin-top:14px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;a name=&quot;canihelpimproveankisimulator&quot;&gt;&lt;/a&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;C&lt;/span&gt;&lt;span style=&quot; font-size:large; font-weight:600;&quot;&gt;an I help improve Anki Simulator?&lt;/span&gt; &lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Of course! Anki Simulator is open-source. Anyone is free to suggest new features, submit issues or file pull requests. You can find the project on &lt;a href=&quot;https://github.com/giovannihenriksen/Anki-Simulator&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;Github&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="closeButton">
+     <property name="text">
+      <string>Close</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

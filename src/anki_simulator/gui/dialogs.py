@@ -18,6 +18,8 @@
 
 import gc
 import time
+import math
+
 from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union
 
 from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
@@ -31,7 +33,7 @@ from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip
 from .._version import __version__
 from ..collection_simulator import CollectionSimulator
 from ..review_simulator import ReviewSimulator
-from .forms.anki21 import about_dialog, anki_simulator_dialog
+from .forms.anki21 import about_dialog, anki_simulator_dialog, manual_dialog
 from .graph import GraphWebView
 
 
@@ -71,6 +73,7 @@ class SimulatorDialog(QDialog):
         self._collection_simulator = collection_simulator
         self.dialog = anki_simulator_dialog.Ui_simulator_dialog()
         self.dialog.setupUi(self)
+        self._setupHooks()
         self.setupGraph()
         self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.dialog.deckChooser)
         if deck_id is not None:
@@ -85,6 +88,7 @@ class SimulatorDialog(QDialog):
             self.clear_last_simulation
         )
         self.dialog.aboutButton.clicked.connect(self.showAboutDialog)
+        self.dialog.manualButton.clicked.connect(self.showManual)
         self.dialog.useActualCardsCheckbox.toggled.connect(
             self.toggledUseActualCardsCheckbox
         )
@@ -99,22 +103,46 @@ class SimulatorDialog(QDialog):
         self.loadDeckConfigurations()
         self.numberOfSimulations = 0
 
-        self.setWindowTitle(f"Anki Simulator v{__version__}")
+        self.setWindowTitle(f"Anki Simulator v{__version__} by GiovanniHenriksen & Glutanimate")
         restoreGeom(self, "simulatorDialog")
 
         self._thread = None
         self._progress = None
 
+    def _setupHooks(self):
+        try:  # 2.1.20+
+            from aqt.gui_hooks import profile_will_close
+            profile_will_close.append(self.close)
+        except (ImportError, ModuleNotFoundError):
+            from anki.hooks import addHook
+            addHook("unloadProfile", self.close)
+    
+    def _tearDownHooks(self):
+        try:  # 2.1.20+
+            from aqt.gui_hooks import profile_will_close
+            profile_will_close.remove(self.close)
+        except (ImportError, ModuleNotFoundError):
+            from anki.hooks import remHook
+            remHook("unloadProfile", self.close)
+
     def showAboutDialog(self):
         aboutDialog = AboutDialog(self)
         aboutDialog.exec_()
 
-    def reject(self):
+    def showManual(self):
+        manual = ManualDialog(self)
+        manual.exec_()
+
+    def _onClose(self):
         saveGeom(self, "simulatorDialog")
+        self._tearDownHooks()
+
+    def reject(self):
+        self._onClose()
         super().reject()
 
     def accept(self):
-        saveGeom(self, "simulatorDialog")
+        self._onClose()
         super().accept()
 
     def setupGraph(self):
@@ -211,10 +239,17 @@ class SimulatorDialog(QDialog):
             ORDER  BY adjustedtype, 
                       adjustedlastivl """
         )  # type 0 = learn; type 1 = relearn; type 2 = young; type 3 = mature; type 4 = cram; type 5 = reschedule
-        learningStepsPercentages = {}
-        lapseStepsPercentages = {}
-        percentageCorrectYoungCards = 90
-        percentageCorrectMatureCards = 90
+
+        # Setting default values for percentages:
+        learningStepsPercentages = {
+            learningStep: ((70, None, 0, 0) if index == 0 else (92, None, 0, 0))
+            for index, learningStep in enumerate(learningSteps)
+        }
+        lapseStepsPercentages = {
+            lapseStep: (92, None, 0, 0) for lapseStep in lapseSteps
+        }
+        percentageCorrectYoungCards = (90, None, 0, 0)
+        percentageCorrectMatureCards = (90, None, 0, 0)
 
         for (
             type,
@@ -225,43 +260,180 @@ class SimulatorDialog(QDialog):
             easyCount,
             totalCount,
         ) in stats:
-            if type == 0:
-                learningStepsPercentages[lastIvl] = int(
-                    ((correctCount + easyCount) / totalCount) * 100
-                )
-            elif type == 1:
-                lapseStepsPercentages[lastIvl] = int(
-                    ((correctCount + easyCount) / totalCount) * 100
-                )
-            elif type == 2:
-                percentageCorrectYoungCards = int(
-                    ((correctCount + easyCount) / totalCount) * 100
-                )
-            elif type == 3:
-                percentageCorrectMatureCards = int(
-                    ((correctCount + easyCount) / totalCount) * 100
-                )
-            else:
-                break
+            if totalCount > 0:
+                included = hardCount / 2 + correctCount + easyCount
+                percentage = included / totalCount
+                marginOfError = 196 * math.sqrt(
+                    ((percentage * (1 - percentage)) / totalCount)
+                )  # for 95% confidence interval
+                marginOfErrorCutOff = 5  # only include actual percentages if the 95% margin of error from the mean
+                # is less than 5%
+                if type == 0:
+                    if 0 < marginOfError <= marginOfErrorCutOff and totalCount > 10:
+                        learningStepsPercentages[lastIvl] = (
+                            percentage * 100,
+                            marginOfError,
+                            included,
+                            totalCount,
+                        )
+                    else:
+                        if lastIvl in learningStepsPercentages:
+                            learningStepsPercentages[lastIvl] = (
+                                learningStepsPercentages[lastIvl][0],
+                                learningStepsPercentages[lastIvl][1],
+                                included,
+                                totalCount,
+                            )
+                elif type == 1:
+                    if 0 < marginOfError <= marginOfErrorCutOff and totalCount > 10:
+                        lapseStepsPercentages[lastIvl] = (
+                            percentage * 100,
+                            marginOfError,
+                            included,
+                            totalCount,
+                        )
+                    else:
+                        if lastIvl in lapseStepsPercentages:
+                            lapseStepsPercentages[lastIvl] = (
+                                lapseStepsPercentages[lastIvl][0],
+                                lapseStepsPercentages[lastIvl][1],
+                                included,
+                                totalCount,
+                            )
+                elif type == 2:
+                    if 0 < marginOfError <= marginOfErrorCutOff and totalCount > 10:
+                        percentageCorrectYoungCards = (
+                            percentage * 100,
+                            marginOfError,
+                            included,
+                            totalCount,
+                        )
+                    else:
+                        percentageCorrectYoungCards = (
+                            percentageCorrectYoungCards[0],
+                            percentageCorrectYoungCards[1],
+                            included,
+                            totalCount,
+                        )
+                elif type == 3:
+                    if 0 < marginOfError <= marginOfErrorCutOff and totalCount > 10:
+                        percentageCorrectMatureCards = (
+                            percentage * 100,
+                            marginOfError,
+                            included,
+                            totalCount,
+                        )
+                    else:
+                        percentageCorrectMatureCards = (
+                            percentageCorrectMatureCards[0],
+                            percentageCorrectMatureCards[1],
+                            included,
+                            totalCount,
+                        )
+                else:
+                    break
         self.dialog.percentCorrectLearningTextfield.setText(
             listToUser(
                 [
-                    learningStepsPercentages.get(learningStep, 92)
+                    int(learningStepsPercentages[learningStep][0])
                     for learningStep in learningSteps
                 ]
             )
         )
+        learningStepsToolTip = "95% Confidence intervals:"
+        for learningStep in learningSteps:
+            marginOfError = learningStepsPercentages[learningStep][1]
+            included = learningStepsPercentages[learningStep][2]
+            total = learningStepsPercentages[learningStep][3]
+            if marginOfError:
+                mean = learningStepsPercentages[learningStep][0]
+                lowerBound = max(round(mean - marginOfError, 1), 0)
+                upperBound = min(round(mean + marginOfError, 1), 100)
+                learningStepsToolTip += "\n- Learning step {}: {}% - {}% ({}/{})".format(
+                    learningStep, lowerBound, upperBound, round(included), total
+                )
+            else:
+                learningStepsToolTip += "\n- Learning step {}: Not enough data to accurately estimate retention rate ({}/{})".format(
+                    learningStep, round(included), total
+                )
+        self.dialog.percentCorrectLearningTextfield.setToolTip(learningStepsToolTip)
         self.dialog.percentCorrectLapseTextfield.setText(
             listToUser(
-                [lapseStepsPercentages.get(lapseStep, 92) for lapseStep in lapseSteps]
+                [
+                    int(lapseStepsPercentages[lapseStep][0])
+                    for lapseStep in lapseSteps
+                ]
             )
         )
+
+        lapseStepsToolTip = "95% Confidence intervals:"
+        for lapseStep in lapseSteps:
+            marginOfError = lapseStepsPercentages[lapseStep][1]
+            included = lapseStepsPercentages[lapseStep][2]
+            total = lapseStepsPercentages[lapseStep][3]
+            if marginOfError:
+                mean = lapseStepsPercentages[lapseStep][0]
+                lowerBound = max(round(mean - marginOfError, 1), 0)
+                upperBound = min(round(mean + marginOfError, 1), 100)
+                lapseStepsToolTip += "\n- Lapse step {}: {}% - {}% ({}/{})".format(
+                    lapseStep, lowerBound, upperBound, round(included), total
+                )
+            else:
+                lapseStepsToolTip += (
+                    "\n- Lapse step {}: Not enough data to accurately estimate retention rate ({"
+                    "}/{})".format(lapseStep, round(included), total)
+                )
+        self.dialog.percentCorrectLapseTextfield.setToolTip(lapseStepsToolTip)
+
+        youngCardsMean = percentageCorrectYoungCards[0]
+        youngCardsMarginOfError = percentageCorrectYoungCards[1]
+        youngCardsIncluded = percentageCorrectYoungCards[2]
+        youngCardsTotal = percentageCorrectYoungCards[3]
         self.dialog.percentCorrectYoungSpinbox.setProperty(
-            "value", percentageCorrectYoungCards
+            "value", int(youngCardsMean)
         )
+        if youngCardsMarginOfError:
+            youngCardsLowerBound = max(round(youngCardsMean - youngCardsMarginOfError, 1), 0)
+            youngCardsUpperBound = min(round(youngCardsMean + youngCardsMarginOfError, 1), 100)
+            self.dialog.percentCorrectYoungSpinbox.setToolTip(
+                "95% Confidence interval: {}% - {}% ({}/{})".format(
+                    youngCardsLowerBound,
+                    youngCardsUpperBound,
+                    round(youngCardsIncluded),
+                    youngCardsTotal,
+                )
+            )
+        else:
+            self.dialog.percentCorrectYoungSpinbox.setToolTip(
+                "Not enough data to accurately estimate retention rate ({}/{})".format(
+                    round(youngCardsIncluded), youngCardsTotal,
+                )
+            )
+
+        matureCardsMean = percentageCorrectMatureCards[0]
+        matureCardsMarginOfError = percentageCorrectMatureCards[1]
+        matureCardsIncluded = percentageCorrectMatureCards[2]
+        matureCardsTotal = percentageCorrectMatureCards[3]
         self.dialog.percentCorrectMatureSpinbox.setProperty(
-            "value", percentageCorrectMatureCards
+            "value", int(matureCardsMean)
         )
+        if matureCardsMarginOfError:
+            matureCardsLowerBound = max(round(matureCardsMean - matureCardsMarginOfError, 1), 0)
+            matureCardsUpperBound = min(round(matureCardsMean + matureCardsMarginOfError, 1), 100)
+            self.dialog.percentCorrectMatureSpinbox.setToolTip(
+                "95% Confidence interval: {}% - {}% ({}/{})".format(
+                    matureCardsLowerBound,
+                    matureCardsUpperBound,
+                    round(matureCardsIncluded),
+                    matureCardsTotal,
+                )
+            )
+        else:
+            self.dialog.percentCorrectMatureSpinbox.setToolTip(
+                "Not enough data to accurately estimate retention rate ({}/{})".format(
+                    round(matureCardsIncluded), matureCardsTotal,
+                )
+            )
 
     def simulate(self):
         daysToSimulate = int(self.dialog.daysToSimulateSpinbox.value())
@@ -507,6 +679,17 @@ class AboutDialog(QDialog):
         html = self.dialog.textBrowser.toHtml()
         html = html.replace("%VERSION%", __version__)
         self.dialog.textBrowser.setHtml(html)
+
+    def close(self):
+        self.reject()
+
+
+class ManualDialog(QDialog):
+    def __init__(self, parent):
+        QDialog.__init__(self, parent)
+        self.dialog = manual_dialog.Ui_manual_dialog()
+        self.dialog.setupUi(self)
+        self.dialog.closeButton.clicked.connect(self.close)
 
     def close(self):
         self.reject()

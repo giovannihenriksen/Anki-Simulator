@@ -25,6 +25,10 @@ html, body {
   overflow: hidden;
 }
 
+#chart {
+  background-color: white;
+}
+
 .night_mode #chart {
   background-color: black;
 }
