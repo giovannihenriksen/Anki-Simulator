@@ -28,12 +28,17 @@ from PyQt5.QtWidgets import QApplication, QDialog, QProgressDialog
 # import the main window object (mw) from aqt
 import aqt
 from aqt.main import AnkiQt
-from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip
+from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip, openLink
 
 from .._version import __version__
 from ..collection_simulator import CollectionSimulator
 from ..review_simulator import ReviewSimulator
-from .forms.anki21 import about_dialog, anki_simulator_dialog, manual_dialog
+from .forms.anki21 import (
+    about_dialog,
+    anki_simulator_dialog,
+    manual_dialog,
+    support_dialog,
+)
 from .graph import GraphWebView
 
 
@@ -89,6 +94,7 @@ class SimulatorDialog(QDialog):
         )
         self.dialog.aboutButton.clicked.connect(self.showAboutDialog)
         self.dialog.manualButton.clicked.connect(self.showManual)
+        self.dialog.supportButton.clicked.connect(self.showSupportDialog)
         self.dialog.useActualCardsCheckbox.toggled.connect(
             self.toggledUseActualCardsCheckbox
         )
@@ -103,7 +109,9 @@ class SimulatorDialog(QDialog):
         self.loadDeckConfigurations()
         self.numberOfSimulations = 0
 
-        self.setWindowTitle(f"Anki Simulator v{__version__} by GiovanniHenriksen & Glutanimate")
+        self.setWindowTitle(
+            f"Anki Simulator v{__version__} by GiovanniHenriksen & Glutanimate"
+        )
         restoreGeom(self, "simulatorDialog")
 
         self._thread = None
@@ -112,17 +120,21 @@ class SimulatorDialog(QDialog):
     def _setupHooks(self):
         try:  # 2.1.20+
             from aqt.gui_hooks import profile_will_close
+
             profile_will_close.append(self.close)
         except (ImportError, ModuleNotFoundError):
             from anki.hooks import addHook
+
             addHook("unloadProfile", self.close)
-    
+
     def _tearDownHooks(self):
         try:  # 2.1.20+
             from aqt.gui_hooks import profile_will_close
+
             profile_will_close.remove(self.close)
         except (ImportError, ModuleNotFoundError):
             from anki.hooks import remHook
+
             remHook("unloadProfile", self.close)
 
     def showAboutDialog(self):
@@ -132,6 +144,10 @@ class SimulatorDialog(QDialog):
     def showManual(self):
         manual = ManualDialog(self)
         manual.exec_()
+
+    def showSupportDialog(self):
+        supportDialog = SupportDialog(parent=self)
+        supportDialog.exec_()
 
     def _onClose(self):
         saveGeom(self, "simulatorDialog")
@@ -359,10 +375,7 @@ class SimulatorDialog(QDialog):
         self.dialog.percentCorrectLearningTextfield.setToolTip(learningStepsToolTip)
         self.dialog.percentCorrectLapseTextfield.setText(
             listToUser(
-                [
-                    int(lapseStepsPercentages[lapseStep][0])
-                    for lapseStep in lapseSteps
-                ]
+                [int(lapseStepsPercentages[lapseStep][0]) for lapseStep in lapseSteps]
             )
         )
 
@@ -389,12 +402,14 @@ class SimulatorDialog(QDialog):
         youngCardsMarginOfError = percentageCorrectYoungCards[1]
         youngCardsIncluded = percentageCorrectYoungCards[2]
         youngCardsTotal = percentageCorrectYoungCards[3]
-        self.dialog.percentCorrectYoungSpinbox.setProperty(
-            "value", int(youngCardsMean)
-        )
+        self.dialog.percentCorrectYoungSpinbox.setProperty("value", int(youngCardsMean))
         if youngCardsMarginOfError:
-            youngCardsLowerBound = max(round(youngCardsMean - youngCardsMarginOfError, 1), 0)
-            youngCardsUpperBound = min(round(youngCardsMean + youngCardsMarginOfError, 1), 100)
+            youngCardsLowerBound = max(
+                round(youngCardsMean - youngCardsMarginOfError, 1), 0
+            )
+            youngCardsUpperBound = min(
+                round(youngCardsMean + youngCardsMarginOfError, 1), 100
+            )
             self.dialog.percentCorrectYoungSpinbox.setToolTip(
                 "95% Confidence interval: {}% - {}% ({}/{})".format(
                     youngCardsLowerBound,
@@ -418,8 +433,12 @@ class SimulatorDialog(QDialog):
             "value", int(matureCardsMean)
         )
         if matureCardsMarginOfError:
-            matureCardsLowerBound = max(round(matureCardsMean - matureCardsMarginOfError, 1), 0)
-            matureCardsUpperBound = min(round(matureCardsMean + matureCardsMarginOfError, 1), 100)
+            matureCardsLowerBound = max(
+                round(matureCardsMean - matureCardsMarginOfError, 1), 0
+            )
+            matureCardsUpperBound = min(
+                round(matureCardsMean + matureCardsMarginOfError, 1), 100
+            )
             self.dialog.percentCorrectMatureSpinbox.setToolTip(
                 "95% Confidence interval: {}% - {}% ({}/{})".format(
                     matureCardsLowerBound,
@@ -693,3 +712,22 @@ class ManualDialog(QDialog):
 
     def close(self):
         self.reject()
+
+
+class SupportDialog(QDialog):
+    
+    _giovanni_link = "https://www.ko-fi.com/giovannihenriksen"
+    _glutanimate_link = "https://www.patreon.com/glutanimate"
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.dialog = support_dialog.Ui_support_dialog()
+        self.dialog.setupUi(self)
+        self.dialog.giovanniButton.clicked.connect(self.onGiovanni)
+        self.dialog.glutanimateButton.clicked.connect(self.onGlutanimate)
+
+    def onGiovanni(self):
+        openLink(self._giovanni_link)
+    
+    def onGlutanimate(self):
+        openLink(self._glutanimate_link)
