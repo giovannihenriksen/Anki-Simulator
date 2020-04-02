@@ -73,6 +73,7 @@ class SimulatorDialog(QDialog):
         self._collection_simulator = collection_simulator
         self.dialog = anki_simulator_dialog.Ui_simulator_dialog()
         self.dialog.setupUi(self)
+        self._setupHooks()
         self.setupGraph()
         self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.dialog.deckChooser)
         if deck_id is not None:
@@ -94,6 +95,7 @@ class SimulatorDialog(QDialog):
         self.dialog.simulateAdditionalNewCardsCheckbox.toggled.connect(
             self.toggledGenerateAdditionalCardsCheckbox
         )
+        self.schedVersion = self.mw.col.schedVer()
         self.config = self.mw.addonManager.getConfig(__name__)
         self.dialog.daysToSimulateSpinbox.setProperty(
             "value", self.config["default_days_to_simulate"]
@@ -107,6 +109,22 @@ class SimulatorDialog(QDialog):
         self._thread = None
         self._progress = None
 
+    def _setupHooks(self):
+        try:  # 2.1.20+
+            from aqt.gui_hooks import profile_will_close
+            profile_will_close.append(self.close)
+        except (ImportError, ModuleNotFoundError):
+            from anki.hooks import addHook
+            addHook("unloadProfile", self.close)
+    
+    def _tearDownHooks(self):
+        try:  # 2.1.20+
+            from aqt.gui_hooks import profile_will_close
+            profile_will_close.remove(self.close)
+        except (ImportError, ModuleNotFoundError):
+            from anki.hooks import remHook
+            remHook("unloadProfile", self.close)
+
     def showAboutDialog(self):
         aboutDialog = AboutDialog(self)
         aboutDialog.exec_()
@@ -115,12 +133,16 @@ class SimulatorDialog(QDialog):
         manual = ManualDialog(self)
         manual.exec_()
 
-    def reject(self):
+    def _onClose(self):
         saveGeom(self, "simulatorDialog")
+        self._tearDownHooks()
+
+    def reject(self):
+        self._onClose()
         super().reject()
 
     def accept(self):
-        saveGeom(self, "simulatorDialog")
+        self._onClose()
         super().accept()
 
     def setupGraph(self):
@@ -165,8 +187,8 @@ class SimulatorDialog(QDialog):
         idCutOff = (
             self.mw.col.sched.dayCutoff - self.config["retention_cutoff_days"] * 86400
         ) * 1000
-        schedVersion = self.mw.col.schedVer()
-        schedulerEaseCorrection = 1 if schedVersion == 1 else 0
+
+        schedulerEaseCorrection = 1 if self.schedVersion == 1 else 0
         stats = self.mw.col.db.all(
             f"""\
             WITH logs 
@@ -441,8 +463,7 @@ class SimulatorDialog(QDialog):
             self.dialog.percentCorrectLearningTextfield.setFocus()
             return
         percentagesCorrectForLearningSteps = [
-            float(i) / 100
-            for i in self.dialog.percentCorrectLearningTextfield.text().split()
+            int(i) for i in self.dialog.percentCorrectLearningTextfield.text().split()
         ]
         if len(percentagesCorrectForLearningSteps) != len(learningSteps):
             showInfo(
@@ -455,8 +476,7 @@ class SimulatorDialog(QDialog):
             self.dialog.percentCorrectLapseTextfield.setFocus()
             return
         percentagesCorrectForLapseSteps = [
-            float(i) / 100
-            for i in self.dialog.percentCorrectLapseTextfield.text().split()
+            int(i) for i in self.dialog.percentCorrectLapseTextfield.text().split()
         ]
         if len(percentagesCorrectForLapseSteps) != len(lapseSteps):
             showInfo(
@@ -464,8 +484,8 @@ class SimulatorDialog(QDialog):
             )
             self.dialog.percentCorrectLapseTextfield.setFocus()
             return
-        chanceRightYoung = float(self.dialog.percentCorrectYoungSpinbox.value()) / 100
-        chanceRightMature = float(self.dialog.percentCorrectMatureSpinbox.value()) / 100
+        percentageGoodYoung = self.dialog.percentCorrectYoungSpinbox.value()
+        percentageGoodMature = self.dialog.percentCorrectMatureSpinbox.value()
 
         shouldUseActualCards = self.dialog.useActualCardsCheckbox.isChecked()
         shouldGenerateAdditionalCards = (
@@ -519,8 +539,11 @@ class SimulatorDialog(QDialog):
             maxInterval,
             percentagesCorrectForLearningSteps,
             percentagesCorrectForLapseSteps,
-            chanceRightYoung,
-            chanceRightMature,
+            percentageGoodYoung,
+            percentageGoodMature,
+            0,  # Percentage hard is set to 0
+            0,  # Percentage easy is set to 0
+            self.schedVersion,
         )
 
         thread = SimulatorThread(sim, parent=self)
