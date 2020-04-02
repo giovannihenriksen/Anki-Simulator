@@ -71,7 +71,7 @@ function initializeChart(isNightMode = False) {
             },
             scaleLabel: {
               display: true,
-              labelString: "Number of reviews",
+              labelString: "Number of cards",
               fontSize: 16,
               padding: 12
             }
@@ -93,13 +93,14 @@ function newDataSet(label, dataAsJSON) {
     "rgb(201, 203, 207)"
   ];
   let color = chartColors[chart.data.datasets.length % chartColors.length];
+  let parsedData = JSON.parse(dataAsJSON);
   let newDataset = {
     label: label,
     backgroundColor: color,
     borderColor: color,
-    data: JSON.parse(dataAsJSON),
+    data: parsedData,
     fill: false,
-    pointRadius: 0,
+    pointRadius: ((parsedData.length > 1) ? 0 : 4),
     pointHoverRadius: 4
   };
   chart.data.datasets.push(newDataset);
