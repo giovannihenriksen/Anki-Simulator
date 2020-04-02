@@ -95,6 +95,7 @@ class SimulatorDialog(QDialog):
         self.dialog.simulateAdditionalNewCardsCheckbox.toggled.connect(
             self.toggledGenerateAdditionalCardsCheckbox
         )
+        self.schedVersion = self.mw.col.schedVer()
         self.config = self.mw.addonManager.getConfig(__name__)
         self.dialog.daysToSimulateSpinbox.setProperty(
             "value", self.config["default_days_to_simulate"]
@@ -186,8 +187,8 @@ class SimulatorDialog(QDialog):
         idCutOff = (
             self.mw.col.sched.dayCutoff - self.config["retention_cutoff_days"] * 86400
         ) * 1000
-        schedVersion = self.mw.col.schedVer()
-        schedulerEaseCorrection = 1 if schedVersion == 1 else 0
+
+        schedulerEaseCorrection = 1 if self.schedVersion == 1 else 0
         stats = self.mw.col.db.all(
             f"""\
             WITH logs 
@@ -462,8 +463,7 @@ class SimulatorDialog(QDialog):
             self.dialog.percentCorrectLearningTextfield.setFocus()
             return
         percentagesCorrectForLearningSteps = [
-            float(i) / 100
-            for i in self.dialog.percentCorrectLearningTextfield.text().split()
+            int(i) for i in self.dialog.percentCorrectLearningTextfield.text().split()
         ]
         if len(percentagesCorrectForLearningSteps) != len(learningSteps):
             showInfo(
@@ -476,8 +476,7 @@ class SimulatorDialog(QDialog):
             self.dialog.percentCorrectLapseTextfield.setFocus()
             return
         percentagesCorrectForLapseSteps = [
-            float(i) / 100
-            for i in self.dialog.percentCorrectLapseTextfield.text().split()
+            int(i) for i in self.dialog.percentCorrectLapseTextfield.text().split()
         ]
         if len(percentagesCorrectForLapseSteps) != len(lapseSteps):
             showInfo(
@@ -485,8 +484,8 @@ class SimulatorDialog(QDialog):
             )
             self.dialog.percentCorrectLapseTextfield.setFocus()
             return
-        chanceRightYoung = float(self.dialog.percentCorrectYoungSpinbox.value()) / 100
-        chanceRightMature = float(self.dialog.percentCorrectMatureSpinbox.value()) / 100
+        percentageGoodYoung = self.dialog.percentCorrectYoungSpinbox.value()
+        percentageGoodMature = self.dialog.percentCorrectMatureSpinbox.value()
 
         shouldUseActualCards = self.dialog.useActualCardsCheckbox.isChecked()
         shouldGenerateAdditionalCards = (
@@ -540,8 +539,11 @@ class SimulatorDialog(QDialog):
             maxInterval,
             percentagesCorrectForLearningSteps,
             percentagesCorrectForLapseSteps,
-            chanceRightYoung,
-            chanceRightMature,
+            percentageGoodYoung,
+            percentageGoodMature,
+            0,  # Percentage hard is set to 0
+            0,  # Percentage easy is set to 0
+            self.schedVersion,
         )
 
         thread = SimulatorThread(sim, parent=self)
