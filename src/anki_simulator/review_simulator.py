@@ -340,7 +340,7 @@ class ReviewSimulator:
                             max(adjustedInterval, card.ivl + 1), self.maxInterval
                         )
                         card.delay = 0
-                        card.ease = card.ease - 15
+                        card.ease = max(card.ease - 15, 130)
                         if card.ivl >= 21:
                             card.state = CARD_STATE_MATURE
                         daysToAdd = card.ivl
