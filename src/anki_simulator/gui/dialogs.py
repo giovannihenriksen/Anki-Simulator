@@ -73,6 +73,7 @@ class SimulatorDialog(QDialog):
         self._collection_simulator = collection_simulator
         self.dialog = anki_simulator_dialog.Ui_simulator_dialog()
         self.dialog.setupUi(self)
+        self._setupHooks()
         self.setupGraph()
         self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.dialog.deckChooser)
         if deck_id is not None:
@@ -107,6 +108,22 @@ class SimulatorDialog(QDialog):
         self._thread = None
         self._progress = None
 
+    def _setupHooks(self):
+        try:  # 2.1.20+
+            from aqt.gui_hooks import profile_will_close
+            profile_will_close.append(self.close)
+        except (ImportError, ModuleNotFoundError):
+            from anki.hooks import addHook
+            addHook("unloadProfile", self.close)
+    
+    def _tearDownHooks(self):
+        try:  # 2.1.20+
+            from aqt.gui_hooks import profile_will_close
+            profile_will_close.remove(self.close)
+        except (ImportError, ModuleNotFoundError):
+            from anki.hooks import remHook
+            remHook("unloadProfile", self.close)
+
     def showAboutDialog(self):
         aboutDialog = AboutDialog(self)
         aboutDialog.exec_()
@@ -115,12 +132,16 @@ class SimulatorDialog(QDialog):
         manual = ManualDialog(self)
         manual.exec_()
 
-    def reject(self):
+    def _onClose(self):
         saveGeom(self, "simulatorDialog")
+        self._tearDownHooks()
+
+    def reject(self):
+        self._onClose()
         super().reject()
 
     def accept(self):
-        saveGeom(self, "simulatorDialog")
+        self._onClose()
         super().accept()
 
     def setupGraph(self):
