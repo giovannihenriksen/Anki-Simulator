@@ -59,7 +59,7 @@ class GraphWebView(AnkiWebView):
 
     def addDataSet(self, label: str, data_set: List[Dict[str, Union[str, int]]]):
         self._runJavascript(
-            "newDataSet('{}', '{}')".format(label, json.dumps(data_set))
+            "newDataSet({})".format(json.dumps(json.dumps([label, data_set])))
         )
 
     def clearLastDataset(self):
