@@ -82,7 +82,7 @@ function initializeChart(isNightMode = False) {
   });
 }
 
-function newDataSet(label, dataAsJSON) {
+function newDataSet(dataAsJSON) {
   let chartColors = [
     "rgb(255, 99, 132)",
     "rgb(255, 159, 64)",
@@ -93,12 +93,14 @@ function newDataSet(label, dataAsJSON) {
     "rgb(201, 203, 207)"
   ];
   let color = chartColors[chart.data.datasets.length % chartColors.length];
-  let parsedData = JSON.parse(dataAsJSON);
+  let parsedData = JSON.parse(dataAsJSON)
+  let label = parsedData[0]
+  let data = parsedData[1]
   let newDataset = {
     label: label,
     backgroundColor: color,
     borderColor: color,
-    data: parsedData,
+    data: data,
     fill: false,
     pointRadius: ((parsedData.length > 1) ? 0 : 4),
     pointHoverRadius: 4
