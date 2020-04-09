@@ -6,8 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- GiovanniHenriksen: Total number of repetitions is now displayed for each simulation
+
+### Changed
+- GiovanniHenriksen: Changed Y-axis label to 'Number of repetitions'
 ### Fixed
-- GiovanniHenriksen: Fixed bug where chart would not show when the deck title contains an apostrophe
+- GiovanniHenriksen: Fixed a bug where the chart would not show when the deck title contained an apostrophe
 
 
 ## [1.0.0] - 2020-04-02
