@@ -71,7 +71,7 @@ function initializeChart(isNightMode = False) {
             },
             scaleLabel: {
               display: true,
-              labelString: "Number of cards",
+              labelString: "Number of repetitions",
               fontSize: 16,
               padding: 12
             }

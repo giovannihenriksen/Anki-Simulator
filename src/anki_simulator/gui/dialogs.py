@@ -586,12 +586,14 @@ class SimulatorDialog(QDialog):
         self.numberOfSimulations += 1
         deck = self.mw.col.decks.get(self.deckChooser.selectedId())
 
+        total_cards = sum(day["y"] for day in data)
         if self.dialog.useActualCardsCheckbox.isChecked():
-            simulationTitle = "{} ({})".format(
-                self.dialog.simulationTitleTextfield.text(), deck["name"]
+            simulationTitle = "{}: {} repetitions ({})".format(
+                self.dialog.simulationTitleTextfield.text(), total_cards, deck["name"]
             )
         else:
-            simulationTitle = self.dialog.simulationTitleTextfield.text()
+            simulationTitle = "{}: {} repetitions".format(self.dialog.simulationTitleTextfield.text(), total_cards)
+
         self.dialog.simulationGraph.addDataSet(
             simulationTitle,
             downsampleList(data, self.config["max_number_of_data_points"]),
