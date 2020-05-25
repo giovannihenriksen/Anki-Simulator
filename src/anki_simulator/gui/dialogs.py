@@ -43,7 +43,13 @@ from .graph import GraphWebView
 
 
 def listToUser(l):
-    return " ".join([str(x) for x in l])
+    def num_to_user(n: Union[int, float]):
+        if n == round(n):
+            return str(int(n))
+        else:
+            return str(n)
+
+    return " ".join(map(num_to_user, l))
 
 
 def stepsAreValid(steps: List[str]):
@@ -586,13 +592,15 @@ class SimulatorDialog(QDialog):
         self.numberOfSimulations += 1
         deck = self.mw.col.decks.get(self.deckChooser.selectedId())
 
-        total_cards = sum(day["y"] for day in data)
+        # total_cards = sum(day["y"] for day in data)
         if self.dialog.useActualCardsCheckbox.isChecked():
-            simulationTitle = "{}: {} repetitions ({})".format(
-                self.dialog.simulationTitleTextfield.text(), total_cards, deck["name"]
+            simulationTitle = "{} ({})".format(
+                self.dialog.simulationTitleTextfield.text(), deck["name"]
             )
         else:
-            simulationTitle = "{}: {} repetitions".format(self.dialog.simulationTitleTextfield.text(), total_cards)
+            simulationTitle = "{} repetitions".format(
+                self.dialog.simulationTitleTextfield.text()
+            )
 
         self.dialog.simulationGraph.addDataSet(
             simulationTitle,
@@ -717,10 +725,10 @@ class ManualDialog(QDialog):
 
 
 class SupportDialog(QDialog):
-    
+
     _giovanni_link = "https://www.ko-fi.com/giovannihenriksen"
     _glutanimate_link = "https://www.patreon.com/glutanimate"
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.dialog = support_dialog.Ui_support_dialog()
@@ -730,6 +738,6 @@ class SupportDialog(QDialog):
 
     def onGiovanni(self):
         openLink(self._giovanni_link)
-    
+
     def onGlutanimate(self):
         openLink(self._glutanimate_link)
