@@ -32,3 +32,12 @@ html, body {
 .night_mode #chart {
   background-color: black;
 }
+
+/* For whatever reason, setting the background color on older Qt releases,
+causes the background to become white in night mode. So for alternate Anki
+releases that use legacy Qt versions, just keep the chart canvas transparent
+so that it uses the default window color. It's not ideal from a readability
+standpoint, but much better than white text on a white background. */
+.legacy_qt.night_mode #chart {
+  background-color: initial;
+}
