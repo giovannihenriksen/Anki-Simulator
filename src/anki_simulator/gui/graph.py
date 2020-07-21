@@ -24,6 +24,7 @@ from PyQt5.QtCore import QUrl
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 from aqt.webview import AnkiWebView
+from aqt.qt import qtmajor, qtminor
 
 try:
     from aqt.theme import theme_manager
@@ -52,8 +53,15 @@ class GraphWebView(AnkiWebView):
         with open(html_path, "r") as f:
             html = f.read()
 
+        added_classes = []
         if theme_manager and theme_manager.night_mode:
-            html = html.replace("<body>", "<body class='nightMode night_mode'>")
+            added_classes.extend(["nightMode", "night_mode"])
+        if self._isLegacyQt():
+            added_classes.append("legacy_qt")
+        
+        if added_classes:
+            classes_str = " ".join(added_classes)
+            html = html.replace("<body>", f"<body class='{classes_str}'>")
 
         QWebEngineView.setHtml(self, html, baseUrl=base_url)
 
@@ -72,3 +80,6 @@ class GraphWebView(AnkiWebView):
 
     def __onJavascriptEvaluated(self, *args):
         self.setEnabled(True)
+
+    def _isLegacyQt(self):
+        return (qtmajor >= 5 and qtminor < 10)
