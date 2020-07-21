@@ -56,11 +56,7 @@ def on_deck_browser_will_show_options_menu(menu, deck_id):
 
 # Web exports
 
-import os
-import re
-
-s = re.escape(os.path.sep)
-aqt.mw.addonManager.setWebExports(__name__, f"gui{s}web{s}.*")
+aqt.mw.addonManager.setWebExports(__name__, r"gui(/|\\)web(/|\\).*")
 
 # Main menu
 
