@@ -19,6 +19,7 @@
 from datetime import date, timedelta
 from random import randint
 from typing import Optional, List, Dict, Union
+from itertools import accumulate
 
 from .collection_simulator import (
     CARD_STATE_NEW,
@@ -173,6 +174,9 @@ class ReviewSimulator:
     def simulate(self, controller=None) -> Optional[List[Dict[str, Union[str, int]]]]:
         dayIndex = 0
 
+        # change in mature count (would it be useful to have original number of mature cards plotted too?)
+        matureDeltas: List[int] = []
+
         while dayIndex < len(self.dateArray):
 
             if controller:
@@ -184,12 +188,14 @@ class ReviewSimulator:
             # some cards may be postponed to the next day. We need to remove them from
             # the current day:
             removeList = []
+            matureDeltas.append(0)
 
             while reviewNumber < len(self.dateArray[dayIndex]):
                 if controller and controller.do_cancel:
                     return None
 
                 card = self.dateArray[dayIndex][reviewNumber]
+                original_state = card.state
 
                 # Postpone reviews > max reviews per day to the next day:
                 if (
@@ -362,6 +368,11 @@ class ReviewSimulator:
                             card.state = CARD_STATE_MATURE
                         daysToAdd = card.ivl
 
+                    if original_state != CARD_STATE_MATURE and card.state == CARD_STATE_MATURE:
+                        matureDeltas[dayIndex] += 1
+                    elif original_state == CARD_STATE_MATURE and card.state != CARD_STATE_MATURE:
+                        matureDeltas[dayIndex] -= 1
+
                 if (
                     daysToAdd is not None
                     and (dayIndex + daysToAdd) < self.daysToSimulate
@@ -379,6 +390,12 @@ class ReviewSimulator:
         today = date.today()
 
         return [
-            {"x": (today + timedelta(days=index)).isoformat(), "y": len(reviews)}
-            for index, reviews in enumerate(self.dateArray)
-        ]  # Returns the number of reviews for each day
+            {
+                "x": (today + timedelta(days=index)).isoformat(),
+                "reviews": len(reviews),
+                "matures": matures,
+            }
+            for index, (reviews, matures) in enumerate(
+                zip(self.dateArray, accumulate(matureDeltas))
+            )
+        ]

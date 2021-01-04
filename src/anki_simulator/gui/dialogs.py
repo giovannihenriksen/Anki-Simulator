@@ -602,10 +602,18 @@ class SimulatorDialog(QDialog):
                 self.dialog.simulationTitleTextfield.text()
             )
 
+        downSampled = downsampleList(data, self.config["max_number_of_data_points"])
+
         self.dialog.simulationGraph.addDataSet(
             simulationTitle,
-            downsampleList(data, self.config["max_number_of_data_points"]),
+            [{"x": r["x"], "y": r["reviews"]} for r in downSampled]
         )
+
+        self.dialog.simulationGraph.addDataSet(
+            simulationTitle + " matures",
+            [{"x": r["x"], "y": r["matures"]} for r in downSampled]
+        )
+
         self.dialog.simulationTitleTextfield.setText(
             "Simulation {}".format(self.numberOfSimulations + 1)
         )
