@@ -368,6 +368,7 @@ class ReviewSimulator:
                             card.state = CARD_STATE_MATURE
                         daysToAdd = card.ivl
 
+                print(f"{original_state} -> {card.state}")
                 if original_state != CARD_STATE_MATURE and card.state == CARD_STATE_MATURE:
                     matureDeltas[dayIndex] += 1
                 elif original_state == CARD_STATE_MATURE and card.state != CARD_STATE_MATURE:
