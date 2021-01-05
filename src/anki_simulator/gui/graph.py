@@ -72,6 +72,7 @@ class GraphWebView(AnkiWebView):
 
     def clearLastDataset(self):
         self._runJavascript("clearLastDataset()")
+        self._runJavascript("clearLastDataset()")
 
     def _runJavascript(self, script: str):
         # workaround for widget focus stealing issues
