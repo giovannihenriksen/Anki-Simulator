@@ -379,6 +379,6 @@ class ReviewSimulator:
         today = date.today()
 
         return [
-            {"x": (today + timedelta(days=index)).isoformat(), "y": len(reviews)}
+            {"x": (today + timedelta(days=index)).isoformat(), "y": len(reviews), "extra": 75}
             for index, reviews in enumerate(self.dateArray)
         ]  # Returns the number of reviews for each day
