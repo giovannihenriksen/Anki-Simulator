@@ -19,6 +19,7 @@
 from datetime import date, timedelta
 from random import randint
 from typing import Optional, List, Dict, Union
+from itertools import accumulate
 
 from .collection_simulator import (
     CARD_STATE_NEW,
@@ -378,7 +379,15 @@ class ReviewSimulator:
 
         today = date.today()
 
+        totalCardsPerDay = [len(day) for day in self.dateArray]
+
         return [
-            {"x": (today + timedelta(days=index)).isoformat(), "y": len(reviews), "extra": 75}
-            for index, reviews in enumerate(self.dateArray)
+            {
+                "x": (today + timedelta(days=index)).isoformat(),
+                "y": reviews,
+                "accumulate": accumulate,
+            }
+            for index, (reviews, accumulate) in enumerate(
+                zip(totalCardsPerDay, accumulate(totalCardsPerDay))
+            )
         ]  # Returns the number of reviews for each day
