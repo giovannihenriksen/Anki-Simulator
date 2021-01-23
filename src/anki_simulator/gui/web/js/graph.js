@@ -41,7 +41,15 @@ function initializeChart(isNightMode = False) {
       maintainAspectRatio: false,
       tooltips: {
         mode: "nearest",
-        intersect: false
+        intersect: false,
+        callbacks: {
+            afterLabel: function(tooltipItem, data) {
+               var datasetData = data.datasets[tooltipItem.datasetIndex].data
+               var dayIndex = tooltipItem.index
+               var dayData = datasetData[dayIndex]
+               return 'Percentage mature: ' + dayData.extra + '%'; //return a string that you wish to append
+            }
+         }
       },
       hover: {
         mode: "nearest",
