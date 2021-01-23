@@ -47,7 +47,8 @@ function initializeChart(isNightMode = False) {
                var datasetData = data.datasets[tooltipItem.datasetIndex].data
                var dayIndex = tooltipItem.index
                var dayData = datasetData[dayIndex]
-               return 'Percentage mature: ' + dayData.extra + '%'; //return a string that you wish to append
+               return 'Total repetitions until this day: ' + dayData.accumulate
+               + '\nAverage number of repetitions until this day: ' + Math.round(dayData.accumulate / (dayIndex + 1));
             }
          }
       },
