@@ -48,7 +48,8 @@ function initializeChart(isNightMode = False) {
                var dayIndex = tooltipItem.index
                var dayData = datasetData[dayIndex]
                return 'Total repetitions until this day: ' + dayData.accumulate
-               + '\nAverage number of repetitions until this day: ' + Math.round(dayData.accumulate / (dayIndex + 1));
+               + '\nAverage number of repetitions until this day: ' + Math.round(dayData.accumulate / (dayIndex + 1))
+               + '\nAmount of cards mature (interval higher than 21 days): ' + dayData.matureCount + '/' + dayData.totalNumberOfCards + ' (' + Math.round(100 * dayData.matureCount / dayData.totalNumberOfCards) + '%)';
             }
          }
       },
