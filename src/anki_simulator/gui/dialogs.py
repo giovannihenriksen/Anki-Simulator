@@ -532,7 +532,7 @@ class SimulatorDialog(QDialog):
             )
             # returns an array of days, each day is another array that contains all
             # the cards for that day:
-            dateArray = collection_simulator.generate_for_deck(
+            dateArray, totalNumberOfCards, numberOfMatureCards = collection_simulator.generate_for_deck(
                 self.deckChooser.selectedId(),
                 daysToSimulate,
                 int(self.dialog.newCardsPerDaySpinbox.value()),
@@ -548,6 +548,8 @@ class SimulatorDialog(QDialog):
             dateArray = collection_simulator.generate_for_new_count(
                 daysToSimulate, newCardsPerDay, newCardsToGenerate, startingEase
             )
+            totalNumberOfCards = newCardsToGenerate
+            numberOfMatureCards = 0
         else:
             raise NotImplementedError
 
@@ -569,6 +571,8 @@ class SimulatorDialog(QDialog):
             0,  # Percentage hard is set to 0
             0,  # Percentage easy is set to 0
             self.schedVersion,
+            totalNumberOfCards,
+            numberOfMatureCards
         )
 
         thread = SimulatorThread(sim, parent=self)
