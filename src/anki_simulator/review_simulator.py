@@ -19,6 +19,7 @@
 from datetime import date, timedelta
 from random import randint
 from typing import Optional, List, Dict, Union
+from itertools import accumulate
 
 from .collection_simulator import (
     CARD_STATE_NEW,
@@ -65,6 +66,8 @@ class ReviewSimulator:
         percentage_hard_review: int,
         percentage_easy_review: int,
         scheduler_version: int,
+        total_number_of_cards: int,
+        current_number_mature_cards: int,
     ):
         self.dateArray: DATE_ARRAY_TYPE = date_array
         self.daysToSimulate: int = days_to_simulate
@@ -77,6 +80,8 @@ class ReviewSimulator:
         self.newLapseInterval: int = new_lapse_interval
         self.maxInterval: int = max_interval
         self.schedulerVersion: int = scheduler_version
+        self.totalNumberOfCards: int = total_number_of_cards
+        self.currentNumberMatureCards: int = current_number_mature_cards
         self._percentage_hard: Dict[CARD_STATES_TYPE, Union[int, List[int]]] = {
             CARD_STATE_NEW: 0,
             CARD_STATE_LEARNING: 0,
@@ -173,6 +178,8 @@ class ReviewSimulator:
     def simulate(self, controller=None) -> Optional[List[Dict[str, Union[str, int]]]]:
         dayIndex = 0
 
+        matureDeltas: List[int] = []
+
         while dayIndex < len(self.dateArray):
 
             if controller:
@@ -184,12 +191,14 @@ class ReviewSimulator:
             # some cards may be postponed to the next day. We need to remove them from
             # the current day:
             removeList = []
+            matureDeltas.append(0)
 
             while reviewNumber < len(self.dateArray[dayIndex]):
                 if controller and controller.do_cancel:
                     return None
 
                 card = self.dateArray[dayIndex][reviewNumber]
+                original_state = card.state
 
                 # Postpone reviews > max reviews per day to the next day:
                 if (
@@ -362,6 +371,11 @@ class ReviewSimulator:
                             card.state = CARD_STATE_MATURE
                         daysToAdd = card.ivl
 
+                if original_state != CARD_STATE_MATURE and card.state == CARD_STATE_MATURE:
+                    matureDeltas[dayIndex] += 1
+                elif original_state == CARD_STATE_MATURE and card.state != CARD_STATE_MATURE:
+                    matureDeltas[dayIndex] -= 1
+
                 if (
                     daysToAdd is not None
                     and (dayIndex + daysToAdd) < self.daysToSimulate
@@ -378,7 +392,17 @@ class ReviewSimulator:
 
         today = date.today()
 
+        totalCardsPerDay = [len(day) for day in self.dateArray]
+        matureDeltas[0] += self.currentNumberMatureCards
         return [
-            {"x": (today + timedelta(days=index)).isoformat(), "y": len(reviews)}
-            for index, reviews in enumerate(self.dateArray)
+            {
+                "x": (today + timedelta(days=index)).isoformat(),
+                "y": reviews,
+                "accumulate": accumulate,
+                "totalNumberOfCards": self.totalNumberOfCards,
+                "matureCount": matureCount
+            }
+            for index, (reviews, accumulate, matureCount) in enumerate(
+                zip(totalCardsPerDay, accumulate(totalCardsPerDay), accumulate(matureDeltas))
+            )
         ]  # Returns the number of reviews for each day

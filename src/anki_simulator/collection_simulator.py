@@ -88,7 +88,7 @@ class CollectionSimulator:
         include_overdue_cards: bool,
         include_suspended_new_cards: bool,
         number_of_additional_new_cards_to_generate: int,
-    ) -> DATE_ARRAY_TYPE:
+    ) -> (DATE_ARRAY_TYPE, int):
         # Before we start the simulation, we will collect all the cards from the database.
         crt = datetime.date.fromtimestamp(
             self._mw.col.crt
@@ -99,7 +99,9 @@ class CollectionSimulator:
         while len(dateArray) < days_to_simulate:
             dateArray.append([])
         newCards = []
+        numberOfMatureCards = 0
         cids = self._mw.col.decks.cids(did, True)
+        totalNumberOfCards = len(cids)
         for cid in cids:
             card = self._mw.col.getCard(cid)
             
@@ -140,6 +142,8 @@ class CollectionSimulator:
                     dateArray[cardDue].append(review)
             elif card.type == 2:
                 # Young/mature card
+                if card.ivl >= 21:
+                    numberOfMatureCards += 1
                 if card.queue == -1:
                     # Card is suspended, so we will skip this card.
                     continue
@@ -179,14 +183,14 @@ class CollectionSimulator:
                     else:
                         # Card is overdue. We will not include it in the simulation.
                         continue
-                review = SimulatedCard(
-                    id=card.id,
-                    ease=card.factor / 10,
-                    state=CARD_STATE_RELEARN,
-                    ivl=card.ivl,
-                    step=max(number_of_lapse_steps - (card.left % 10), -1),
-                )
                 if cardDue < days_to_simulate:
+                    review = SimulatedCard(
+                        id=card.id,
+                        ease=card.factor / 10,
+                        state=CARD_STATE_RELEARN,
+                        ivl=card.ivl,
+                        step=max(number_of_lapse_steps - (card.left % 10), -1),
+                    )
                     dateArray[cardDue].append(review)
 
         if number_of_new_cards_per_day > 0:
@@ -195,6 +199,7 @@ class CollectionSimulator:
                     number_of_additional_new_cards_to_generate,
                     (number_of_new_cards_per_day * days_to_simulate) - len(newCards),
                 )
+                totalNumberOfCards += number_of_additional_new_cards_to_generate
                 for cid in range(additionalCardsToGenerate):
                     newCards.append(SimulatedCard(id=cid, ease=starting_ease,))
             # Adding the collected new cards to our data structure
@@ -209,7 +214,7 @@ class CollectionSimulator:
                 if dayToAddNewCardsTo < days_to_simulate:
                     dateArray[dayToAddNewCardsTo].append(card)
 
-        return dateArray
+        return (dateArray, totalNumberOfCards, numberOfMatureCards)
 
     @staticmethod
     def generate_for_new_count(
