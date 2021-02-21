@@ -54,8 +54,8 @@ class ReviewSimulator:
         new_cards_per_day: int,
         interval_modifier: int,
         max_reviews_per_day: int,
-        learning_steps: List[int],
-        lapse_steps: List[int],
+        learning_steps: List[float],
+        lapse_steps: List[float],
         graduating_interval: int,
         new_lapse_interval: int,
         max_interval: int,
@@ -74,8 +74,8 @@ class ReviewSimulator:
         self.newCardsPerDay: int = new_cards_per_day
         self.intervalModifier: int = interval_modifier
         self.maxReviewsPerDay: int = max_reviews_per_day
-        self.learningSteps: List[int] = learning_steps
-        self.lapseSteps: List[int] = lapse_steps
+        self.learningSteps: List[float] = learning_steps
+        self.lapseSteps: List[float] = lapse_steps
         self.graduatingInterval: int = graduating_interval
         self.newLapseInterval: int = new_lapse_interval
         self.maxInterval: int = max_interval

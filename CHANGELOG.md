@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GiovanniHenriksen: Graph tooltip now shows the day number
 
 ### Fixed
+- GiovanniHenriksen: Usage of decimals in learning and lapse steps is now allowed
 - GiovanniHenriksen: Fixed bug where the average number of cards was not correct if the number of days simulated was larger than the max number of data points
 
 ## [1.1] - 2021-01-30
