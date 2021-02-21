@@ -52,9 +52,16 @@ def listToUser(l):
     return " ".join(map(num_to_user, l))
 
 
+def isFloat(value):
+  try:
+    float(value)
+    return True
+  except ValueError:
+    return False
+
 def stepsAreValid(steps: List[str]):
     for step in steps:
-        if not step.isdecimal():
+        if not isFloat(step):
             return False
     if len(steps) == 0:
         return False
@@ -471,13 +478,13 @@ class SimulatorDialog(QDialog):
             self.dialog.learningStepsTextfield.setFocus()
             return
         learningSteps = [
-            int(i) for i in self.dialog.learningStepsTextfield.text().split()
+            float(i) for i in self.dialog.learningStepsTextfield.text().split()
         ]
         if not stepsAreValid(self.dialog.lapseStepsTextfield.text().split()):
             showInfo("Please correctly enter 'Lapse steps' (e.g. '30 1440')")
             self.dialog.lapseStepsTextfield.setFocus()
             return
-        lapseSteps = [int(i) for i in self.dialog.lapseStepsTextfield.text().split()]
+        lapseSteps = [float(i) for i in self.dialog.lapseStepsTextfield.text().split()]
         graduatingInterval = int(self.dialog.graduatingIntervalSpinbox.value())
         newLapseInterval = float(self.dialog.newLapseIntervalSpinbox.value()) / 100
         maxInterval = int(self.dialog.maximumIntervalSpinbox.value())
