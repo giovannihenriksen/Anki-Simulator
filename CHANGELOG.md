@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [1.1.1] - 2021-02-21
+
+### Added
+- GiovanniHenriksen: Graph tooltip now shows the day number
+
+### Fixed
+- GiovanniHenriksen: Fixed bug where the average number of cards was not correct if the number of days simulated was larger than the max number of data points
+
 ## [1.1] - 2021-01-30
 
 ### Added
