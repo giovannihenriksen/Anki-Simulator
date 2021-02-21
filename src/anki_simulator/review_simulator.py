@@ -398,7 +398,9 @@ class ReviewSimulator:
             {
                 "x": (today + timedelta(days=index)).isoformat(),
                 "y": reviews,
+                "dayNumber": (index + 1),
                 "accumulate": accumulate,
+                "average": accumulate/(index+1),
                 "totalNumberOfCards": self.totalNumberOfCards,
                 "matureCount": matureCount
             }
