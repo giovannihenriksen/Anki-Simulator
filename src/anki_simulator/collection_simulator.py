@@ -136,7 +136,7 @@ class CollectionSimulator:
                     id=card.id,
                     ease=starting_ease,
                     state=CARD_STATE_LEARNING,
-                    step=max(number_of_learning_steps - (card.left % 10), -1),
+                    step=max(number_of_learning_steps - (card.left % 1000), -1),
                 )
                 if cardDue < days_to_simulate:
                     dateArray[cardDue].append(review)
@@ -189,7 +189,7 @@ class CollectionSimulator:
                         ease=card.factor / 10,
                         state=CARD_STATE_RELEARN,
                         ivl=card.ivl,
-                        step=max(number_of_lapse_steps - (card.left % 10), -1),
+                        step=max(number_of_lapse_steps - (card.left % 1000), -1),
                     )
                     dateArray[cardDue].append(review)
 
