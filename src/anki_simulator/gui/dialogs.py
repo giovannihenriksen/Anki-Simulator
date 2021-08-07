@@ -95,9 +95,12 @@ class SimulatorDialog(QDialog):
         self.setupGraph()
         self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.dialog.deckChooser)
         if deck_id is not None:
-            deck_name = self.mw.col.decks.nameOrNone(deck_id)
-            if deck_name:
-                self.deckChooser.setDeckName(deck_name)
+            if hasattr(self.deckChooser, 'selected_deck_id'): # Anki >= 2.1.45
+                self.deckChooser.selected_deck_id = deck_id
+            else:
+                deck_name = self.mw.col.decks.nameOrNone(deck_id)
+                if deck_name:
+                    self.deckChooser.setDeckName(deck_name)
         self.dialog.simulateButton.clicked.connect(self.simulate)
         self.dialog.loadDeckConfigurationsButton.clicked.connect(
             self.loadDeckConfigurations
