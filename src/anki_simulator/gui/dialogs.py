@@ -258,7 +258,7 @@ class SimulatorDialog(QDialog):
                             AND id > {idCutOff}) 
             SELECT adjustedtype, 
                    ( CASE 
-                       WHEN lastivl < 0 THEN lastivl / -60 
+                       WHEN lastivl < 0 THEN THEN CAST(lastivl as float) / -60
                      END )               AS adjustedLastIvl, 
                    Sum(adjustedease = 1) AS incorrectCount, 
                    Sum(adjustedease = 2) AS hardCount, 
