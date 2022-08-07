@@ -10,8 +10,8 @@ Anki Simulator is an add-on for Anki that simulates Anki progress over time usin
 - [License](#License)
 
 ## Installation
-Recommended: Anki Simulator can be easily installed through on Ankiweb.
-Alternatively, download and open the latest .ankiaddon package from the releases tab
+Recommended: Anki Simulator can be easily installed through [Ankiweb](https://ankiweb.net/shared/info/817108664).
+Alternatively, download and open the latest .ankiaddon package from the [releases tab](https://github.com/giovannihenriksen/Anki-Simulator/releases).
 
 ## Building
 You can build Anki Simulator using [Anki add-on builder](https://github.com/glutanimate/anki-addon-builder/):
