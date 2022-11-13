@@ -22,7 +22,7 @@ import math
 
 from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union
 
-from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot, Qt
 from PyQt5.QtWidgets import QApplication, QDialog, QProgressDialog, QDialogButtonBox, QVBoxLayout, QLabel
 
 # import the main window object (mw) from aqt
@@ -661,8 +661,8 @@ class SimulatorDialog(QDialog):
             )
 
     def clear_all_simulation(self):
-        confirmClearAllDialog = ConfirmClearAllDialog(self)
-        if confirmClearAllDialog.exec_():
+        modifiers = QApplication.keyboardModifiers()
+        if modifiers == Qt.ShiftModifier or ConfirmClearAllDialog(self).exec_():
             while self.numberOfSimulations > 0:
                 self.dialog.simulationGraph.clearLastDataset()
                 self.numberOfSimulations -= 1
