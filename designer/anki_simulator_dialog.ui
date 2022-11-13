@@ -812,6 +812,22 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QPushButton" name="clearAllSimulationButton">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>Clear all</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -848,6 +864,7 @@
   <tabstop>simulateButton</tabstop>
   <tabstop>loadDeckConfigurationsButton</tabstop>
   <tabstop>clearLastSimulationButton</tabstop>
+  <tabstop>clearAllSimulationButton</tabstop>
   <tabstop>aboutButton</tabstop>
  </tabstops>
  <resources/>

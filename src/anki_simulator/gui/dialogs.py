@@ -108,6 +108,9 @@ class SimulatorDialog(QDialog):
         self.dialog.clearLastSimulationButton.clicked.connect(
             self.clear_last_simulation
         )
+        self.dialog.clearAllSimulationButton.clicked.connect(
+            self.clear_all_simulation
+        )
         self.dialog.aboutButton.clicked.connect(self.showAboutDialog)
         self.dialog.manualButton.clicked.connect(self.showManual)
         self.dialog.supportButton.clicked.connect(self.showSupportDialog)
@@ -625,6 +628,7 @@ class SimulatorDialog(QDialog):
         )
 
         self.dialog.clearLastSimulationButton.setEnabled(True)
+        self.dialog.clearAllSimulationButton.setEnabled(True)
 
     def _on_simulation_canceled(self):
         self.__gc_qobjects()
@@ -650,6 +654,18 @@ class SimulatorDialog(QDialog):
         self.numberOfSimulations -= 1
         if self.numberOfSimulations == 0:
             self.dialog.clearLastSimulationButton.setEnabled(False)
+            self.dialog.clearAllSimulationButton.setEnabled(False)
+        if not self.dialog.simulationTitleTextfield.isModified():
+            self.dialog.simulationTitleTextfield.setText(
+                "Simulation {}".format(self.numberOfSimulations + 1)
+            )
+
+    def clear_all_simulation(self):
+        while self.numberOfSimulations > 0:
+            self.dialog.simulationGraph.clearLastDataset()
+            self.numberOfSimulations -= 1
+        self.dialog.clearLastSimulationButton.setEnabled(False)
+        self.dialog.clearAllSimulationButton.setEnabled(False)
         if not self.dialog.simulationTitleTextfield.isModified():
             self.dialog.simulationTitleTextfield.setText(
                 "Simulation {}".format(self.numberOfSimulations + 1)
