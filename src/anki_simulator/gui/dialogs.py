@@ -23,7 +23,7 @@ import math
 from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union
 
 from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QApplication, QDialog, QProgressDialog
+from PyQt5.QtWidgets import QApplication, QDialog, QProgressDialog, QDialogButtonBox, QVBoxLayout, QLabel
 
 # import the main window object (mw) from aqt
 import aqt
@@ -661,15 +661,17 @@ class SimulatorDialog(QDialog):
             )
 
     def clear_all_simulation(self):
-        while self.numberOfSimulations > 0:
-            self.dialog.simulationGraph.clearLastDataset()
-            self.numberOfSimulations -= 1
-        self.dialog.clearLastSimulationButton.setEnabled(False)
-        self.dialog.clearAllSimulationButton.setEnabled(False)
-        if not self.dialog.simulationTitleTextfield.isModified():
-            self.dialog.simulationTitleTextfield.setText(
-                "Simulation {}".format(self.numberOfSimulations + 1)
-            )
+        confirmClearAllDialog = ConfirmClearAllDialog(self)
+        if confirmClearAllDialog.exec_():
+            while self.numberOfSimulations > 0:
+                self.dialog.simulationGraph.clearLastDataset()
+                self.numberOfSimulations -= 1
+            self.dialog.clearLastSimulationButton.setEnabled(False)
+            self.dialog.clearAllSimulationButton.setEnabled(False)
+            if not self.dialog.simulationTitleTextfield.isModified():
+                self.dialog.simulationTitleTextfield.setText(
+                    "Simulation {}".format(self.numberOfSimulations + 1)
+                )
 
     def toggledUseActualCardsCheckbox(self):
         if not self.dialog.useActualCardsCheckbox.isChecked():
@@ -771,3 +773,21 @@ class SupportDialog(QDialog):
 
     def onGlutanimate(self):
         openLink(self._glutanimate_link)
+
+class ConfirmClearAllDialog(QDialog):
+    def __init__(self, parent):
+        QDialog.__init__(self, parent)
+
+        self.setWindowTitle("Clear all simulations?")
+
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.Cancel)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(QLabel("Clear all simulations?<br>Tip: Hold shift to skip confirmation"))
+        self.layout.addWidget(self.buttonBox)
+        self.setLayout(self.layout)
+
+    def close(self):
+        self.reject()
