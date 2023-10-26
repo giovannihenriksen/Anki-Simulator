@@ -32,7 +32,7 @@ except ImportError:
 
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "_vendor"))
 
-from PyQt5.QtWidgets import QAction
+from aqt.qt import QAction
 
 # import the main window object (mw) from aqt
 import aqt

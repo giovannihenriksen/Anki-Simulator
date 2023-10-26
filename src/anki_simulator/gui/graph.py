@@ -20,8 +20,7 @@ import json
 import os
 from typing import Dict, List, Union
 
-from PyQt5.QtCore import QUrl
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+from aqt.qt import QUrl, QWebEngineView
 
 from aqt.webview import AnkiWebView
 from aqt.qt import qtmajor, qtminor
