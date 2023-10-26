@@ -22,8 +22,7 @@ import math
 
 from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union
 
-from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QApplication, QDialog, QProgressDialog
+from aqt.qt import QApplication, QDialog, QProgressDialog, QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
 
 # import the main window object (mw) from aqt
 import aqt
@@ -155,15 +154,15 @@ class SimulatorDialog(QDialog):
 
     def showAboutDialog(self):
         aboutDialog = AboutDialog(self)
-        aboutDialog.exec_()
+        aboutDialog.exec()
 
     def showManual(self):
         manual = ManualDialog(self)
-        manual.exec_()
+        manual.exec()
 
     def showSupportDialog(self):
         supportDialog = SupportDialog(parent=self)
-        supportDialog.exec_()
+        supportDialog.exec()
 
     def _onClose(self):
         saveGeom(self, "simulatorDialog")
@@ -598,7 +597,7 @@ class SimulatorDialog(QDialog):
         self._progress = progress
 
         self._thread.start()
-        self._progress.exec_()
+        self._progress.exec()
 
     def _on_simulation_done(self, data: List[Dict[str, Union[str, int]]]):
         self.__gc_qobjects()
