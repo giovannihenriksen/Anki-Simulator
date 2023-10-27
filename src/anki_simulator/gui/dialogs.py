@@ -22,9 +22,20 @@ import math
 
 from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union
 
-from aqt.qt import QApplication, QDialog, QProgressDialog, QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot
-
-# import the main window object (mw) from aqt
+from aqt.qt import (
+    QEventLoop,
+    QSize,
+    QThread,
+    pyqtSignal,
+    pyqtSlot,
+    Qt,
+    QApplication,
+    QDialog,
+    QProgressDialog,
+    QDialogButtonBox,
+    QVBoxLayout,
+    QLabel,
+)
 import aqt
 from aqt.main import AnkiQt
 from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip, openLink
@@ -32,7 +43,7 @@ from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip, openLink
 from .._version import __version__
 from ..collection_simulator import CollectionSimulator
 from ..review_simulator import ReviewSimulator
-from .forms.anki21 import (
+from .forms import (
     about_dialog,
     anki_simulator_dialog,
     manual_dialog,
@@ -106,6 +117,9 @@ class SimulatorDialog(QDialog):
         )
         self.dialog.clearLastSimulationButton.clicked.connect(
             self.clear_last_simulation
+        )
+        self.dialog.clearAllSimulationButton.clicked.connect(
+            self.clear_all_simulation
         )
         self.dialog.aboutButton.clicked.connect(self.showAboutDialog)
         self.dialog.manualButton.clicked.connect(self.showManual)
@@ -624,6 +638,7 @@ class SimulatorDialog(QDialog):
         )
 
         self.dialog.clearLastSimulationButton.setEnabled(True)
+        self.dialog.clearAllSimulationButton.setEnabled(True)
 
     def _on_simulation_canceled(self):
         self.__gc_qobjects()
@@ -649,10 +664,24 @@ class SimulatorDialog(QDialog):
         self.numberOfSimulations -= 1
         if self.numberOfSimulations == 0:
             self.dialog.clearLastSimulationButton.setEnabled(False)
+            self.dialog.clearAllSimulationButton.setEnabled(False)
         if not self.dialog.simulationTitleTextfield.isModified():
             self.dialog.simulationTitleTextfield.setText(
                 "Simulation {}".format(self.numberOfSimulations + 1)
             )
+
+    def clear_all_simulation(self):
+        modifiers = QApplication.keyboardModifiers()
+        if modifiers == Qt.ShiftModifier or ConfirmClearAllDialog(self).exec_():
+            while self.numberOfSimulations > 0:
+                self.dialog.simulationGraph.clearLastDataset()
+                self.numberOfSimulations -= 1
+            self.dialog.clearLastSimulationButton.setEnabled(False)
+            self.dialog.clearAllSimulationButton.setEnabled(False)
+            if not self.dialog.simulationTitleTextfield.isModified():
+                self.dialog.simulationTitleTextfield.setText(
+                    "Simulation {}".format(self.numberOfSimulations + 1)
+                )
 
     def toggledUseActualCardsCheckbox(self):
         if not self.dialog.useActualCardsCheckbox.isChecked():
@@ -754,3 +783,21 @@ class SupportDialog(QDialog):
 
     def onGlutanimate(self):
         openLink(self._glutanimate_link)
+
+class ConfirmClearAllDialog(QDialog):
+    def __init__(self, parent):
+        QDialog.__init__(self, parent)
+
+        self.setWindowTitle("Clear all simulations?")
+
+        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.Cancel)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(QLabel("Clear all simulations?<br>Tip: Hold shift to skip confirmation"))
+        self.layout.addWidget(self.buttonBox)
+        self.setLayout(self.layout)
+
+    def close(self):
+        self.reject()
