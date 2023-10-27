@@ -33,7 +33,7 @@ from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip, openLink
 from .._version import __version__
 from ..collection_simulator import CollectionSimulator
 from ..review_simulator import ReviewSimulator
-from .forms.anki21 import (
+from .forms import (
     about_dialog,
     anki_simulator_dialog,
     manual_dialog,
