@@ -19,10 +19,7 @@
 import datetime
 from typing import List
 
-try:
-    from typing import Literal, Final
-except ImportError:
-    from typing_extensions import Literal, Final
+from typing import Literal, Final
 
 CARD_STATE_NEW: Final = 0
 CARD_STATE_LEARNING: Final = 1
