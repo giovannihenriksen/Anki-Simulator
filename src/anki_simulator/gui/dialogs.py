@@ -37,8 +37,10 @@ from aqt.qt import (
     QLabel,
 )
 import aqt
-from aqt.main import AnkiQt
 from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip, openLink
+
+if TYPE_CHECKING:
+    from aqt.main import AnkiQt
 
 from .._version import __version__
 from ..collection_simulator import CollectionSimulator
@@ -105,12 +107,7 @@ class SimulatorDialog(QDialog):
         self.setupGraph()
         self.deckChooser = aqt.deckchooser.DeckChooser(self.mw, self.dialog.deckChooser)
         if deck_id is not None:
-            if hasattr(self.deckChooser, 'selected_deck_id'): # Anki >= 2.1.45
-                self.deckChooser.selected_deck_id = deck_id
-            else:
-                deck_name = self.mw.col.decks.name_if_exists(deck_id)
-                if deck_name:
-                    self.deckChooser.setDeckName(deck_name)
+            self.deckChooser.selected_deck_id = deck_id
         self.dialog.simulateButton.clicked.connect(self.simulate)
         self.dialog.loadDeckConfigurationsButton.clicked.connect(
             self.loadDeckConfigurations
@@ -147,24 +144,14 @@ class SimulatorDialog(QDialog):
         self._progress = None
 
     def _setupHooks(self):
-        try:  # 2.1.20+
-            from aqt.gui_hooks import profile_will_close
+        from aqt.gui_hooks import profile_will_close
 
-            profile_will_close.append(self.close)
-        except (ImportError, ModuleNotFoundError):
-            from anki.hooks import addHook
-
-            addHook("unloadProfile", self.close)
+        profile_will_close.append(self.close)
 
     def _tearDownHooks(self):
-        try:  # 2.1.20+
-            from aqt.gui_hooks import profile_will_close
+        from aqt.gui_hooks import profile_will_close
 
-            profile_will_close.remove(self.close)
-        except (ImportError, ModuleNotFoundError):
-            from anki.hooks import remHook
-
-            remHook("unloadProfile", self.close)
+        profile_will_close.remove(self.close)
 
     def showAboutDialog(self):
         aboutDialog = AboutDialog(self)
@@ -645,7 +632,7 @@ class SimulatorDialog(QDialog):
 
         if self._progress:
             # seems to be necessary to prevent progress dialog from being stuck:
-            QApplication.instance().processEvents(QEventLoop.ExcludeUserInputEvents)
+            QApplication.instance().processEvents(QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
             self._progress.cancel()
         tooltip("Canceled", parent=self)
 
@@ -672,7 +659,7 @@ class SimulatorDialog(QDialog):
 
     def clear_all_simulation(self):
         modifiers = QApplication.keyboardModifiers()
-        if modifiers == Qt.ShiftModifier or ConfirmClearAllDialog(self).exec_():
+        if modifiers == Qt.KeyboardModifier.ShiftModifier or ConfirmClearAllDialog(self).exec():
             while self.numberOfSimulations > 0:
                 self.dialog.simulationGraph.clearLastDataset()
                 self.numberOfSimulations -= 1
@@ -790,14 +777,16 @@ class ConfirmClearAllDialog(QDialog):
 
         self.setWindowTitle("Clear all simulations?")
 
-        self.buttonBox = QDialogButtonBox(QDialogButtonBox.Yes | QDialogButtonBox.Cancel)
+        self.buttonBox = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Yes | QDialogButtonBox.StandardButton.Cancel
+        )
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
 
-        self.layout = QVBoxLayout()
-        self.layout.addWidget(QLabel("Clear all simulations?<br>Tip: Hold shift to skip confirmation"))
-        self.layout.addWidget(self.buttonBox)
-        self.setLayout(self.layout)
+        layout = QVBoxLayout()
+        layout.addWidget(QLabel("Clear all simulations?<br>Tip: Hold shift to skip confirmation"))
+        layout.addWidget(self.buttonBox)
+        self.setLayout(layout)
 
     def close(self):
         self.reject()
