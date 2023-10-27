@@ -16,61 +16,48 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see https://www.gnu.org/licenses/.
 
+from typing import TYPE_CHECKING, cast
+
+from aqt import mw
+from aqt.gui_hooks import deck_browser_will_show_options_menu
+from aqt.qt import QAction, QMenu
+
 from ._version import __version__  # noqa: F401
-
-# Allows us to use type annotations even on earlier Anki 2.1 releases
-# that do not package types and typing
-try:
-    import typing  # noqa: F401
-    import types  # noqa: F401
-
-    # Python 3.8+ test:
-    from typing import Literal, Final  # noqa: F401
-except ImportError:
-    import sys
-    import os
-
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "_vendor"))
-
-from aqt.qt import QAction
-
-# import the main window object (mw) from aqt
-import aqt
-
 from .collection_simulator import CollectionSimulator
 from .gui.dialogs import SimulatorDialog
 from .review_simulator import ReviewSimulator
 
+if TYPE_CHECKING:
+    assert mw is not None
+    from aqt.main import AnkiQt
 
-def open_simulator_dialog(deck_id=None):
+
+def open_simulator_dialog(main_window: "AnkiQt", deck_id=None):
     dialog = SimulatorDialog(
-        aqt.mw, ReviewSimulator, CollectionSimulator, deck_id=deck_id
+        main_window, ReviewSimulator, CollectionSimulator, deck_id=deck_id
     )
     dialog.show()
 
 
-def on_deck_browser_will_show_options_menu(menu, deck_id):
-    action = menu.addAction("Simulate")
-    action.triggered.connect(lambda _, did=deck_id: open_simulator_dialog(did))
+def add_deck_menu_action_factory(main_window: "AnkiQt"):
+    def add_deck_menu_action(menu: QMenu, deck_id: int):
+        action = cast(QAction, menu.addAction("Simulate"))
+        action.triggered.connect(lambda _: open_simulator_dialog(main_window, deck_id))
+
+    return add_deck_menu_action
 
 
 # Web exports
 
-aqt.mw.addonManager.setWebExports(__name__, r"gui(/|\\)web(/|\\).*")
+mw.addonManager.setWebExports(__name__, r"gui(/|\\)web(/|\\).*")
 
 # Main menu
 
-action = QAction("Anki Simulator", aqt.mw)
-action.triggered.connect(open_simulator_dialog)  # type: ignore
-aqt.mw.form.menuTools.addAction(action)  # type: ignore
+action = QAction("Anki Simulator", mw)
+action.triggered.connect(lambda _, mw=mw: open_simulator_dialog(mw))
+mw.form.menuTools.addAction(action)
 
 # Deck options context menu
 
-try:  # Anki 2.1.20+
-    from aqt.gui_hooks import deck_browser_will_show_options_menu
-
-    deck_browser_will_show_options_menu.append(on_deck_browser_will_show_options_menu)
-except (ImportError, ModuleNotFoundError):
-    from anki.hooks import addHook
-
-    addHook("showDeckOptions", on_deck_browser_will_show_options_menu)
+add_deck_menu = add_deck_menu_action_factory(mw)
+deck_browser_will_show_options_menu.append(add_deck_menu)

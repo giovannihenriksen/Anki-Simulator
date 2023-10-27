@@ -31,10 +31,7 @@ from .collection_simulator import (
     CARD_STATES_TYPE,
 )
 
-try:
-    from typing import Literal, Final
-except ImportError:
-    from typing_extensions import Literal, Final
+from typing import Literal, Final
 
 ANSWER_WRONG: Final = 0
 ANSWER_HARD: Final = 1
