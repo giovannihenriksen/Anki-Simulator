@@ -97,7 +97,7 @@ class SimulatorDialog(QDialog):
             if hasattr(self.deckChooser, 'selected_deck_id'): # Anki >= 2.1.45
                 self.deckChooser.selected_deck_id = deck_id
             else:
-                deck_name = self.mw.col.decks.nameOrNone(deck_id)
+                deck_name = self.mw.col.decks.name_if_exists(deck_id)
                 if deck_name:
                     self.deckChooser.setDeckName(deck_name)
         self.dialog.simulateButton.clicked.connect(self.simulate)
@@ -116,7 +116,7 @@ class SimulatorDialog(QDialog):
         self.dialog.simulateAdditionalNewCardsCheckbox.toggled.connect(
             self.toggledGenerateAdditionalCardsCheckbox
         )
-        self.schedVersion = self.mw.col.schedVer()
+        self.schedVersion = self.mw.col.sched_ver()
         self.config = self.mw.addonManager.getConfig(__name__)
         self.dialog.daysToSimulateSpinbox.setProperty(
             "value", self.config["default_days_to_simulate"]
@@ -186,7 +186,7 @@ class SimulatorDialog(QDialog):
 
     def loadDeckConfigurations(self):
         deckID = self.deckChooser.selectedId()
-        conf = self.mw.col.decks.confForDid(deckID)
+        conf = self.mw.col.decks.config_dict_for_deck_id(deckID)
         numberOfNewCardsPerDay = conf["new"]["perDay"]
         startingEase = conf["new"]["initialFactor"] / 10.0
         intervalModifier = conf["rev"]["ivlFct"] * 100
@@ -216,7 +216,7 @@ class SimulatorDialog(QDialog):
         deckChildren.append(deckID)
         childrenDIDs = "(" + ", ".join(str(did) for did in deckChildren) + ")"
         idCutOff = (
-            self.mw.col.sched.dayCutoff - self.config["retention_cutoff_days"] * 86400
+            self.mw.col.sched.day_cutoff - self.config["retention_cutoff_days"] * 86400
         ) * 1000
 
         schedulerEaseCorrection = 1 if self.schedVersion == 1 else 0
