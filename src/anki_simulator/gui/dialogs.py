@@ -168,15 +168,15 @@ class SimulatorDialog(QDialog):
 
     def showAboutDialog(self):
         aboutDialog = AboutDialog(self)
-        aboutDialog.exec_()
+        aboutDialog.exec()
 
     def showManual(self):
         manual = ManualDialog(self)
-        manual.exec_()
+        manual.exec()
 
     def showSupportDialog(self):
         supportDialog = SupportDialog(parent=self)
-        supportDialog.exec_()
+        supportDialog.exec()
 
     def _onClose(self):
         saveGeom(self, "simulatorDialog")
@@ -611,7 +611,7 @@ class SimulatorDialog(QDialog):
         self._progress = progress
 
         self._thread.start()
-        self._progress.exec_()
+        self._progress.exec()
 
     def _on_simulation_done(self, data: List[Dict[str, Union[str, int]]]):
         self.__gc_qobjects()
