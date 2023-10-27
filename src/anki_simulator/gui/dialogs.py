@@ -22,10 +22,20 @@ import math
 
 from typing import TYPE_CHECKING, Dict, List, Optional, Type, Union
 
-from PyQt5.QtCore import QEventLoop, QSize, QThread, pyqtSignal, pyqtSlot, Qt
-from PyQt5.QtWidgets import QApplication, QDialog, QProgressDialog, QDialogButtonBox, QVBoxLayout, QLabel
-
-# import the main window object (mw) from aqt
+from aqt.qt import (
+    QEventLoop,
+    QSize,
+    QThread,
+    pyqtSignal,
+    pyqtSlot,
+    Qt,
+    QApplication,
+    QDialog,
+    QProgressDialog,
+    QDialogButtonBox,
+    QVBoxLayout,
+    QLabel,
+)
 import aqt
 from aqt.main import AnkiQt
 from aqt.utils import restoreGeom, saveGeom, showInfo, tooltip, openLink
