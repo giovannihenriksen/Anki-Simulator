@@ -54,7 +54,7 @@ mw.addonManager.setWebExports(__name__, r"gui(/|\\)web(/|\\).*")
 # Main menu
 
 action = QAction("Anki Simulator", mw)
-action.triggered.connect(lambda mw=mw: open_simulator_dialog(mw))
+action.triggered.connect(lambda _, mw=mw: open_simulator_dialog(mw))
 mw.form.menuTools.addAction(action)
 
 # Deck options context menu
